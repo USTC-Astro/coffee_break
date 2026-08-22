@@ -1,0 +1,30 @@
+name: Reset coffee votes
+
+on:
+  schedule:
+    - cron: "0 23 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Archive and clear current coffee votes
+        env:
+          COFFEE_API_BASE: ${{ vars.COFFEE_API_BASE }}
+          COFFEE_ADMIN_TOKEN: ${{ secrets.COFFEE_ADMIN_TOKEN }}
+        run: |
+          if [ -z "$COFFEE_API_BASE" ]; then
+            echo "COFFEE_API_BASE repository variable is not configured."
+            exit 1
+          fi
+          if [ -z "$COFFEE_ADMIN_TOKEN" ]; then
+            echo "COFFEE_ADMIN_TOKEN repository secret is not configured."
+            exit 1
+          fi
+
+          response="$(curl -fsS -X POST "${COFFEE_API_BASE%/}/admin/refresh_votes?token=${COFFEE_ADMIN_TOKEN}")"
+          echo "$response"

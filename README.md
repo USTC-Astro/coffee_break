@@ -80,6 +80,11 @@ The Worker implements:
 Responses match the old FastAPI shape, so the same coffee vote page works in
 server mode and static GitHub Pages mode.
 
+The `Reset coffee votes` workflow archives and clears `current` votes on the
+same weekly schedule as the paper agenda update, and can also be run manually.
+Set the GitHub repository secret `COFFEE_ADMIN_TOKEN` to the same value as the
+Worker `ADMIN_TOKEN`.
+
 ## Poster generation
 
 `coffee_break_poster` is currently a Codex skill, not a command that GitHub
