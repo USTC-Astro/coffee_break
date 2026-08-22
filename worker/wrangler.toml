@@ -1,0 +1,11 @@
+name = "coffee-break-api"
+main = "src/index.js"
+compatibility_date = "2026-08-22"
+
+[vars]
+ALLOWED_ORIGINS = "https://ustc-astro.github.io"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "coffee-break-db"
+database_id = "a3c9153c-9859-4f26-a768-945eb17bcd2b"
