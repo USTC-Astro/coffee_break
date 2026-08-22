@@ -30,6 +30,9 @@ def load_papers(json_path: Path | None = None) -> list[dict]:
     for paper in papers:
         paper["has_summary"] = (DATA_DIR / f"{paper['arxiv_id']}.md").exists()
         paper["has_poster"] = (DATA_DIR / "generated_posters" / paper["arxiv_id"] / "poster.html").exists()
+        paper["has_phone_poster"] = (
+            DATA_DIR / "generated_posters" / paper["arxiv_id"] / "phone" / "poster.html"
+        ).exists()
     return papers
 
 
