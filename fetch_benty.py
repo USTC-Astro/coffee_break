@@ -372,8 +372,8 @@ def generate_summary(arxiv_id, votes, output_dir, paper_author=""):
         from arxiv_on_deck_2.arxiv2 import retrieve_document_source
         from arxiv_on_deck_2.latex import LatexDocument, select_most_cited_figures
     except ImportError:
-        log.error("未找到 arxiv_on_deck_2，请先安装")
-        return None
+        log.warning("未找到 arxiv_on_deck_2，改用 arXiv API 生成基础摘要")
+        return fallback_summary(arxiv_id, votes, output_dir)
 
     src_dir = output_dir / f"_src_{arxiv_id}"
     fig_dir = output_dir / "figs" / arxiv_id
