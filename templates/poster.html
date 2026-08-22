@@ -144,6 +144,17 @@
     min-width: 4rem;
     text-align: center;
   }
+  .open-poster {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--accent);
+    border-radius: 3px;
+    padding: 0.35rem 0.75rem;
+    transition: all 0.15s;
+  }
+  .open-poster:hover { background: var(--accent); color: #fff; }
   .dot {
     width: 8px; height: 8px;
     border-radius: 50%;
@@ -218,6 +229,7 @@
   <div class="slideshow-bar">
     <span class="slide-counter" id="slide-counter"></span>
     <div class="dots-wrap" id="dots-wrap"></div>
+    <a class="open-poster" id="open-poster" href="#" target="_self">打开当前海报 →</a>
   </div>
 </div>
 
@@ -248,6 +260,13 @@ function showSlide(idx) {
   // Counter
   document.getElementById('slide-counter').textContent =
     `${currentIdx + 1} / ${images.length}`;
+  const openLink = document.getElementById('open-poster');
+  if (images[currentIdx].poster_url) {
+    openLink.href = images[currentIdx].poster_url;
+    openLink.style.display = 'inline-block';
+  } else {
+    openLink.style.display = 'none';
+  }
 
   // Arrows
   document.getElementById('arrow-left').disabled  = images.length <= 1;
@@ -290,7 +309,8 @@ async function loadPosters() {
     const data = await r.json();
     images = (data.images || []).map(img => ({
       ...img,
-      url: img.url && img.url.startsWith('data/') ? staticBase + img.url : img.url
+      url: img.url && img.url.startsWith('data/') ? staticBase + img.url : img.url,
+      poster_url: img.poster_url && img.poster_url.startsWith('data/') ? staticBase + img.poster_url : img.poster_url
     }));
 
     if (!images.length) {

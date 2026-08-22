@@ -340,7 +340,7 @@ MathJax = {
   <div class="papers">
     {% for p in papers %}
     <div class="paper-card {% if loop.index == 1 %}top1{% elif loop.index == 2 %}top2{% endif %}"
-         onclick="window.{% if p.has_summary %}location='/paper/{{ p.arxiv_id }}'{% else %}open('https://arxiv.org/abs/{{ p.arxiv_id }}','_blank'){% endif %}">
+         onclick="window.{% if p.has_poster %}location='/data/generated_posters/{{ p.arxiv_id }}/poster.html'{% else %}open('https://arxiv.org/abs/{{ p.arxiv_id }}','_blank'){% endif %}">
 
       <div class="vote-badge">
         <div class="vote-num">{{ p.votes }}</div>
@@ -355,8 +355,8 @@ MathJax = {
       </div>
 
       <div class="paper-action">
-        {% if p.has_summary %}
-        <span class="btn-sm btn-summary">摘要 →</span>
+        {% if p.has_poster %}
+        <span class="btn-sm btn-summary">海报 →</span>
         {% endif %}
         <a class="btn-sm btn-arxiv"
            href="https://arxiv.org/abs/{{ p.arxiv_id }}"

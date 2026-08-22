@@ -11,7 +11,6 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-import markdown
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -30,6 +29,7 @@ def load_papers(json_path: Path | None = None) -> list[dict]:
     papers = json.loads(json_file.read_text(encoding="utf-8"))
     for paper in papers:
         paper["has_summary"] = (DATA_DIR / f"{paper['arxiv_id']}.md").exists()
+        paper["has_poster"] = (DATA_DIR / "generated_posters" / paper["arxiv_id"] / "poster.html").exists()
     return papers
 
 
@@ -95,6 +95,7 @@ def rewrite_html(html: str, path_from_site_root: str, coffee_api_base: str = "")
     )
     html = html.replace('src="/data/', f'src="{prefix}data/')
     html = html.replace('href="/data/', f'href="{prefix}data/')
+    html = html.replace("location='/data/", f"location='{prefix}data/")
     html = html.replace('fetch(\'/api/posters/\'', f"fetch('{prefix}api/posters-static-disabled/'")
     html = html.replace(
         "<script>\n// ── 固定海报目录 current",
@@ -133,15 +134,18 @@ def build_poster_manifests(data_root: Path) -> None:
             [p for p in week_dir.iterdir() if p.is_file() and p.suffix.lower() in POSTER_EXTS],
             key=lambda p: p.name.lower(),
         )
-        manifest = {
-            "images": [
-                {
-                    "name": p.name,
-                    "url": f"data/posters/{week_dir.name}/{p.name}",
-                }
-                for p in files
-            ]
-        }
+        images = []
+        for p in files:
+            item = {
+                "name": p.name,
+                "url": f"data/posters/{week_dir.name}/{p.name}",
+            }
+            match = re.search(r"(\d{4}\.\d{4,5})", p.name)
+            if match and (data_root / "generated_posters" / match.group(1) / "poster.html").exists():
+                item["arxiv_id"] = match.group(1)
+                item["poster_url"] = f"data/generated_posters/{match.group(1)}/poster.html"
+            images.append(item)
+        manifest = {"images": images}
         (week_dir / "manifest.json").write_text(
             json.dumps(manifest, indent=2, ensure_ascii=False),
             encoding="utf-8",
@@ -176,21 +180,6 @@ def render_site(site_dir: Path, coffee_api_base: str = "") -> None:
     for hist_file in hist_dir.glob("*.json") if hist_dir.exists() else []:
         for paper in load_papers(hist_file):
             all_papers_by_id.setdefault(paper["arxiv_id"], paper)
-
-    paper_template = env.get_template("paper.html")
-    for md_file in sorted(DATA_DIR.glob("*.md")):
-        arxiv_id = md_file.stem
-        if not re.match(r"^\d{4}\.\d{4,5}$", arxiv_id):
-            continue
-        raw = md_file.read_text(encoding="utf-8")
-        raw = re.sub(r"^<!--.*?-->\s*", "", raw, flags=re.DOTALL)
-        content_html = markdown.markdown(raw, extensions=["tables", "fenced_code", "nl2br", "md_in_html"])
-        html = paper_template.render(
-            arxiv_id=arxiv_id,
-            content=content_html,
-            meta=all_papers_by_id.get(arxiv_id, {}),
-        )
-        write_page(site_dir, f"paper/{arxiv_id}/index.html", html, coffee_api_base)
 
     write_page(site_dir, "poster/index.html", (TMPL_DIR / "poster.html").read_text(encoding="utf-8"), coffee_api_base)
     write_page(site_dir, "coffee_vote/index.html", (TMPL_DIR / "coffee_vote.html").read_text(encoding="utf-8"), coffee_api_base)

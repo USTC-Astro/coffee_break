@@ -8,6 +8,8 @@ __pycache__/
 site/
 _site/
 tmp/
+local_posters/
+cbp_work/
 
 # Local/private state
 data/debug_agenda.html
