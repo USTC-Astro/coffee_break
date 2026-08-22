@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ meta.get("title", arxiv_id) }} — USTC Astro Coffee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [["$","$"],["\\(","\\)"]],
+    displayMath: [["$$","$$"],["\\[","\\]"]]
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+  :root {
+    --bg:      #f5f2eb;
+    --surface: #ffffff;
+    --border:  #ddd8ce;
+    --border2: #c8c2b5;
+    --accent:  #1a56a0;
+    --accent2: #c0392b;
+    --text:    #1a1a1a;
+    --muted:   #6b6560;
+    --gold:    #b8860b;
+    --tag-bg:  #e8e4dc;
+    --code-bg: #f0ece3;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── Nav ── */
+  nav {
+    background: var(--surface);
+    border-bottom: 2px solid var(--text);
+    padding: 1rem 3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.74rem;
+  }
+  nav a { color: var(--accent); text-decoration: none; }
+  nav a:hover { text-decoration: underline; }
+  nav .sep { color: var(--border2); }
+  nav .current { color: var(--muted); }
+
+  /* ── Paper header ── */
+  .paper-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 2.5rem 3rem 2rem;
+  }
+  .header-inner { max-width: 1200px; margin: 0 auto; }
+
+  .arxiv-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+  }
+  .arxiv-tag {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.68rem;
+    background: var(--accent2);
+    color: #fff;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+  }
+  .vote-pill {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.68rem;
+    background: var(--tag-bg);
+    color: var(--gold);
+    border: 1px solid #d4aa3a;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+  }
+  .paper-title {
+    font-family: "Source Serif 4", serif;
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text);
+    margin-bottom: 0.8rem;
+    letter-spacing: -0.01em;
+  }
+  .paper-authors {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 1.2rem;
+  }
+  .header-links { display: flex; gap: 0.6rem; }
+  .header-links a {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.68rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: all 0.15s;
+    border: 1px solid;
+  }
+  .link-arxiv { border-color: var(--accent2); color: var(--accent2); }
+  .link-arxiv:hover { background: var(--accent2); color: #fff; }
+  .link-pdf { border-color: var(--border2); color: var(--muted); }
+  .link-pdf:hover { border-color: var(--muted); color: var(--text); }
+  .link-back { border-color: var(--border2); color: var(--muted); }
+  .link-back:hover { border-color: var(--accent); color: var(--accent); }
+  .link-discussed {
+    border: 1px solid #888; color: #888; background: transparent;
+    cursor: pointer; font-family: "JetBrains Mono", monospace;
+    font-size: 0.68rem; padding: 0.35rem 0.9rem; border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .link-discussed:hover { border-color: #c0392b; color: #c0392b; }
+
+  /* ── Content ── */
+  .paper-body {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+  }
+
+  /* Markdown 渲染 */
+  .paper-body h1 {
+    font-family: "Source Serif 4", serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .paper-body h2 {
+    font-family: "Source Serif 4", serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 2rem 0 0.8rem;
+  }
+  .paper-body h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text);
+    margin: 1.5rem 0 0.6rem;
+  }
+  .paper-body p {
+    font-size: 0.92rem;
+    line-height: 1.85;
+    color: #2a2a2a;
+    margin-bottom: 1rem;
+  }
+  .paper-body strong { font-weight: 500; }
+  .paper-body em { font-style: italic; color: var(--muted); }
+  .paper-body code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82rem;
+    background: var(--code-bg);
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+    color: var(--accent2);
+  }
+  .paper-body blockquote {
+    border-left: 3px solid var(--border2);
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+    color: var(--muted);
+    font-style: italic;
+    background: var(--tag-bg);
+    border-radius: 0 4px 4px 0;
+  }
+  .paper-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+    margin: 1.2rem 0;
+  }
+  .paper-body th {
+    background: var(--tag-bg);
+    color: var(--muted);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 2px solid var(--border2);
+    text-align: left;
+  }
+  .paper-body td {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  /* ── 图片 ── */
+  .paper-body img {
+    height: 340px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    margin: 0.4rem;
+    display: inline-block;
+    vertical-align: top;
+    background: #faf8f3;
+  }
+  [id^="div_fig"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    align-items: flex-start;
+    margin: 1.5rem 0 0.5rem;
+    padding: 1rem;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  [id^="div_fig"] p {
+    width: 100%;
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 0.6rem;
+    line-height: 1.6;
+  }
+  [id^="div_fig"] strong { color: var(--text); font-style: normal; }
+
+  /* badges */
+  .paper-body img[src*="shields.io"],
+  .paper-body img[src*="badge"] {
+    height: auto !important;
+    width: auto !important;
+    display: inline;
+    border: none;
+    margin: 0 0.3rem 0 0;
+    vertical-align: middle;
+    background: transparent;
+  }
+
+  /* abstract 区块 */
+  #abstract {
+    background: var(--tag-bg);
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.2rem;
+    border-radius: 0 4px 4px 0;
+    margin: 1rem 0 1.5rem;
+  }
+  #abstract p { font-size: 0.9rem; color: #2a2a2a; }
+
+  /* title div 里的 h1 不要重复大号 */
+  #title h1 {
+    font-size: 1.3rem;
+    border: none;
+    margin: 0 0 0.5rem;
+    padding: 0;
+  }
+  #authors { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.8rem; }
+  #comments {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    background: var(--tag-bg);
+    padding: 0.4rem 0.8rem;
+    border-radius: 3px;
+    margin-bottom: 0.8rem;
+    display: inline-block;
+  }
+
+  /* ── Thoughts ── */
+  .thoughts-section {
+    background: var(--surface);
+    border-top: 2px solid var(--border);
+    padding: 2.5rem 0 4rem;
+  }
+  .thoughts-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .thoughts-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .thoughts-title {
+    font-family: "Source Serif 4", serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .thoughts-count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .thought-entry {
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 0.8rem;
+  }
+  .thought-meta {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+  .thought-meta strong { color: var(--accent); }
+  .thought-text {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+  .thought-input-area {
+    margin-top: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .thought-input-area input,
+  .thought-input-area textarea {
+    font-family: "Inter", sans-serif;
+    font-size: 0.88rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--text);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .thought-input-area input { max-width: 260px; }
+  .thought-input-area input:focus,
+  .thought-input-area textarea:focus { border-color: var(--accent); }
+  .thought-input-area button {
+    align-self: flex-start;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    padding: 0.4rem 1rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .thought-input-area button:hover { opacity: 0.85; }
+  /* ── Rating dropdown ── */
+  .rating-dropdown { position: relative; display: inline-block; }
+  .link-rating {
+    border: 1px solid var(--border2); color: var(--muted); background: transparent;
+    cursor: pointer; font-family: "JetBrains Mono", monospace;
+    font-size: 0.68rem; padding: 0.35rem 0.9rem; border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .link-rating:hover { border-color: var(--accent); color: var(--accent); }
+  .link-rating.rated { border-color: #e67e22; color: #e67e22; }
+  .rating-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    z-index: 200;
+    min-width: 180px;
+    padding: 0.6rem;
+  }
+  .rating-menu.open { display: block; }
+  .rating-author-row { margin-bottom: 0.5rem; }
+  .rating-author-row input {
+    width: 100%;
+    font-family: "Inter", sans-serif;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+  }
+  .rating-author-row input:focus { border-color: var(--accent); }
+  .rating-options { display: flex; flex-direction: column; gap: 0.25rem; }
+  .rating-options button {
+    text-align: left;
+    font-family: "Inter", sans-serif;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.7rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+    color: var(--text);
+    transition: background 0.1s;
+  }
+  .rating-options button:hover { background: var(--tag-bg); }
+
+  /* 评价汇总展示 */
+  .rating-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .rating-chip {
+    font-size: 0.82rem;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.2rem 0.7rem;
+    color: var(--text);
+  }
+  .rating-chip span { color: var(--muted); font-size: 0.72rem; margin-left: 0.3rem; }
+
+  .no-thoughts {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    padding: 1rem 0;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/">← Coffee Break</a>
+  <span class="sep">/</span>
+  <span class="current">{{ arxiv_id }}</span>
+</nav>
+
+<div class="paper-header">
+  <div class="header-inner">
+    <div class="arxiv-meta">
+      <span class="arxiv-tag">arXiv {{ arxiv_id }}</span>
+      {% if meta.votes %}
+      <span class="vote-pill">🗳 {{ meta.votes }} votes</span>
+      {% endif %}
+    </div>
+    <h1 class="paper-title">{{ meta.get("title", "") }}</h1>
+    <div class="paper-authors">{{ meta.get("author", "") }}</div>
+    <div class="header-links">
+      <a class="link-arxiv" href="https://arxiv.org/abs/{{ arxiv_id }}" target="_blank">arXiv ↗</a>
+      <a class="link-pdf" href="https://arxiv.org/pdf/{{ arxiv_id }}.pdf" target="_blank">PDF ↗</a>
+      <button class="link-discussed" id="discussed-btn"
+              onclick="markDiscussed('{{ arxiv_id }}')">✓ 已讨论</button>
+      <div class="rating-dropdown" id="rating-dropdown">
+        <button class="link-rating" onclick="toggleRatingMenu(event)" id="rating-btn">
+          评价 ▾
+        </button>
+        <div class="rating-menu" id="rating-menu">
+          <div class="rating-author-row">
+            <input type="text" id="rating-author" placeholder="Your name" maxlength="40"/>
+          </div>
+          <div class="rating-options">
+            <button onclick="submitRating('{{ arxiv_id }}', '🔥 夯')">🔥 夯</button>
+            <button onclick="submitRating('{{ arxiv_id }}', '👑 顶级')">👑 顶级</button>
+            <button onclick="submitRating('{{ arxiv_id }}', '🧑‍💻 人上人')">🧑‍💻 人上人</button>
+            <button onclick="submitRating('{{ arxiv_id }}', '😐 NPC')">😐 NPC</button>
+            <button onclick="submitRating('{{ arxiv_id }}', '💩 拉完了')">💩 拉完了</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="paper-body">
+  {{ content }}
+</div>
+
+<!-- ── Thoughts ── -->
+<div class="thoughts-section">
+  <div class="thoughts-inner">
+    <div class="thoughts-header">
+      <span class="thoughts-title">💬 Discussion Notes</span>
+      <span class="thoughts-count" id="thoughts-count"></span>
+    </div>
+
+    <div id="rating-summary" class="rating-summary"></div>
+    <div id="thoughts-list"></div>
+
+    <div class="thought-input-area">
+      <input type="text" id="thought-author" placeholder="Your name" maxlength="40"/>
+      <textarea id="thought-text" placeholder="Add a note or thought about this paper..." rows="3"></textarea>
+      <button onclick="saveThought('{{ arxiv_id }}')">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_TOKEN = "ustc1958";
+
+// ── 评价 ──────────────────────────────────────────────
+// 获取或生成设备唯一 ID
+function getDeviceId() {
+  let id = localStorage.getItem('device_id');
+  if (!id) {
+    id = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem('device_id', id);
+  }
+  return id;
+}
+
+function toggleRatingMenu(e) {
+  e.stopPropagation();
+  document.getElementById('rating-menu').classList.toggle('open');
+}
+document.addEventListener('click', () => {
+  const menu = document.getElementById('rating-menu');
+  if (menu) menu.classList.remove('open');
+});
+
+async function loadRatings(arxivId) {
+  try {
+    const r = await fetch('/ratings/' + arxivId);
+    const data = await r.json();
+    renderRatings(data.ratings || {});
+  } catch(e) {}
+}
+
+function renderRatings(ratings) {
+  const summary = document.getElementById('rating-summary');
+  const entries = Object.entries(ratings);
+  if (!entries.length) { summary.innerHTML = ''; return; }
+
+  // 统计每个评价的人数
+  const counts = {};
+  const names  = {};
+  for (const [, info] of entries) {
+    counts[info.rating] = (counts[info.rating] || 0) + 1;
+    names[info.rating]  = names[info.rating] || [];
+    names[info.rating].push(info.author || 'Anonymous');
+  }
+  const order = ["🔥 夯","👑 顶级","🧑‍💻 人上人","😐 NPC","💩 拉完了"];
+  summary.innerHTML = order
+    .filter(r => counts[r])
+    .map(r => `<div class="rating-chip">${r}<span title="${names[r].join(', ')}">${counts[r]}人</span></div>`)
+    .join('');
+
+  // 如果当前设备已评价，更新按钮
+  const myDeviceId = getDeviceId();
+  if (ratings[myDeviceId]) {
+    const btn = document.getElementById('rating-btn');
+    if (btn) { btn.textContent = ratings[myDeviceId].rating + ' ▾'; btn.classList.add('rated'); }
+  }
+}
+
+async function submitRating(arxivId, rating) {
+  const author = document.getElementById('rating-author').value.trim() || 'Anonymous';
+  localStorage.setItem('rating_author', author);
+  try {
+    const r = await fetch('/ratings/' + arxivId + '?token=' + ADMIN_TOKEN, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({rating, author, device_id: getDeviceId()})
+    });
+    const data = await r.json();
+    if (data.ok) {
+      renderRatings(data.ratings);
+      const btn = document.getElementById('rating-btn');
+      btn.textContent = rating + ' ▾';
+      btn.classList.add('rated');
+      document.getElementById('rating-menu').classList.remove('open');
+    }
+  } catch(e) { console.error(e); }
+}
+
+// ── 加载笔记
+async function loadThoughts(arxivId) {
+  try {
+    const r = await fetch('/thoughts/' + arxivId);
+    const data = await r.json();
+    renderThoughts(data.entries || []);
+  } catch(e) {
+    console.error('加载笔记失败', e);
+  }
+}
+
+function renderThoughts(entries) {
+  const list = document.getElementById('thoughts-list');
+  const count = document.getElementById('thoughts-count');
+  count.textContent = entries.length ? `(${entries.length})` : '';
+  if (!entries.length) {
+    list.innerHTML = '<div class="no-thoughts">No notes yet. Be the first to add one.</div>';
+    return;
+  }
+  list.innerHTML = entries.map(e => `
+    <div class="thought-entry">
+      <div class="thought-meta"><strong>${e.author}</strong> · ${e.time}</div>
+      <div class="thought-text">${e.text.replace(/</g,'&lt;')}</div>
+    </div>
+  `).join('');
+}
+
+async function saveThought(arxivId) {
+  const text   = document.getElementById('thought-text').value.trim();
+  const author = document.getElementById('thought-author').value.trim() || 'Anonymous';
+  if (!text) return;
+  const btn = document.querySelector('.thought-input-area button');
+  btn.textContent = '保存中...';
+  btn.disabled = true;
+  try {
+    const r = await fetch('/thoughts/' + arxivId + '?token=' + ADMIN_TOKEN, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text, author})
+    });
+    const data = await r.json();
+    if (data.ok) {
+      renderThoughts(data.entries);
+      document.getElementById('thought-text').value = '';
+    }
+  } finally {
+    btn.textContent = 'Save Note';
+    btn.disabled = false;
+  }
+}
+
+// 页面加载时读取笔记
+document.addEventListener('DOMContentLoaded', () => {
+  const arxivId = document.querySelector('.arxiv-tag').textContent.replace('arXiv ', '').trim();
+  loadThoughts(arxivId);
+  loadRatings(arxivId);
+  // 恢复上次输入的名字
+  const savedName = localStorage.getItem('rating_author');
+  if (savedName) {
+    document.getElementById('rating-author').value = savedName;
+    document.getElementById('thought-author').value = savedName;
+  }
+});
+
+async function markDiscussed(arxivId) {
+  const btn = document.getElementById('discussed-btn');
+  if (!confirm('标记为已讨论，并同步到 Benty-Fields？')) return;
+  btn.textContent = '处理中...';
+  btn.disabled = true;
+  try {
+    const r = await fetch('/mark_discussed/' + arxivId + '?token=' + ADMIN_TOKEN, {method: 'POST'});
+    if (r.status === 403) {
+      btn.textContent = '✗ 无权限';
+      btn.disabled = false;
+      return;
+    }
+    const data = await r.json();
+    if (data.ok) {
+      btn.textContent = data.benty_ok ? '✓ 已同步 Benty' : '✓ 本地已标记';
+      btn.style.borderColor = '#27ae60';
+      btn.style.color = '#27ae60';
+    } else {
+      btn.textContent = '✗ 失败';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    btn.textContent = '✗ 失败';
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

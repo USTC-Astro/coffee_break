@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="static-base" content="">
+<title>USTC Astro Coffee 海报</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #f5f2eb;
+    --surface: #ffffff;
+    --border:  #ddd8ce;
+    --border2: #c8c2b5;
+    --accent:  #1a56a0;
+    --text:    #1a1a1a;
+    --muted:   #6b6560;
+    --coffee:  #6f4e37;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--text);
+    padding: 1.2rem 3rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-shrink: 0;
+  }
+  .site-title {
+    font-family: "Source Serif 4", serif;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  .site-title span { color: var(--accent); }
+
+  /* ── Nav tabs ── */
+  .nav-tabs {
+    background: #e8e4dc;
+    border-bottom: 1px solid var(--border);
+    padding: 0 3rem;
+    display: flex;
+    gap: 0;
+    flex-shrink: 0;
+  }
+  .nav-tab {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.7rem 1.2rem;
+    text-decoration: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--coffee); border-bottom-color: var(--coffee); }
+
+  /* ── Slideshow container ── */
+  .slideshow-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 0 3rem;
+    overflow: hidden;
+  }
+
+  .slideshow-stage {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+
+  .slide-img {
+    max-width: 100%;
+    max-height: 68vh;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+    transition: opacity 0.3s ease;
+    cursor: default;
+  }
+
+  /* ── Nav arrows ── */
+  .arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    z-index: 10;
+    opacity: 0.7;
+  }
+  .arrow:hover { opacity: 1; border-color: var(--coffee); color: var(--coffee); }
+  .arrow:disabled { opacity: 0.25; cursor: default; }
+  .arrow-left  { left: 0.5rem; }
+  .arrow-right { right: 0.5rem; }
+
+  /* ── Bottom bar ── */
+  .slideshow-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem 0 1.5rem;
+    flex-shrink: 0;
+  }
+  .slide-counter {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    min-width: 4rem;
+    text-align: center;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border2);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    padding: 0;
+  }
+  .dot.active { background: var(--coffee); width: 18px; border-radius: 4px; }
+  .dots-wrap { display: flex; gap: 0.4rem; align-items: center; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    padding: 4rem 2rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+  .empty-state .msg {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+  }
+  .empty-state .hint {
+    font-size: 0.78rem;
+    color: #999;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    header { padding: 1rem 1.2rem; }
+    .nav-tabs { padding: 0 1.2rem; }
+    .slideshow-wrap { padding: 0 0.5rem; }
+    .arrow { width: 36px; height: 36px; font-size: 1rem; }
+    .arrow-left  { left: 0; }
+    .arrow-right { right: 0; }
+    .slide-img { max-height: 55vh; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="site-title" href="/">USTC <span>Astro</span> Coffee</a>
+</header>
+
+<div class="nav-tabs">
+  <a class="nav-tab" href="/">📄 论文</a>
+  <a class="nav-tab" href="/coffee_vote">☕ 咖啡投票</a>
+  <a class="nav-tab active" href="/poster">🖼 海报</a>
+</div>
+
+<!-- Empty state (hidden when images exist) -->
+<div class="empty-state" id="empty-state">
+  <div class="icon">🖼</div>
+  <div class="msg">本周暂无海报</div>
+</div>
+
+<!-- Slideshow (hidden when no images) -->
+<div class="slideshow-wrap" id="slideshow-wrap" style="display:none;">
+  <div class="slideshow-stage">
+    <button class="arrow arrow-left"  id="arrow-left"  onclick="prevSlide()"  title="上一张 (←)">◀</button>
+    <img class="slide-img" id="slide-img" src="" alt="poster" />
+    <button class="arrow arrow-right" id="arrow-right" onclick="nextSlide()" title="下一张 (→)">▶</button>
+  </div>
+  <div class="slideshow-bar">
+    <span class="slide-counter" id="slide-counter"></span>
+    <div class="dots-wrap" id="dots-wrap"></div>
+  </div>
+</div>
+
+<script>
+// ── 固定海报目录 current，管理员访问 /refresh_poster?token=... 清空 ──
+function getWeekKey() {
+  return 'current';
+}
+
+function getStaticBase() {
+  const meta = document.querySelector('meta[name="static-base"]');
+  return meta ? meta.content : '';
+}
+
+// ── State ──
+let images = [];
+let currentIdx = 0;
+
+// ── Render ──
+function showSlide(idx) {
+  if (!images.length) return;
+  currentIdx = ((idx % images.length) + images.length) % images.length;
+  const img = document.getElementById('slide-img');
+  img.src = images[currentIdx].url;
+  img.alt = images[currentIdx].name;
+
+  // Counter
+  document.getElementById('slide-counter').textContent =
+    `${currentIdx + 1} / ${images.length}`;
+
+  // Arrows
+  document.getElementById('arrow-left').disabled  = images.length <= 1;
+  document.getElementById('arrow-right').disabled = images.length <= 1;
+
+  // Dots
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === currentIdx);
+  });
+}
+
+function renderDots() {
+  const wrap = document.getElementById('dots-wrap');
+  if (images.length <= 1) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = images.map((_, i) =>
+    `<button class="dot ${i === currentIdx ? 'active' : ''}"
+             onclick="showSlide(${i})" title="第 ${i+1} 张"></button>`
+  ).join('');
+}
+
+function nextSlide() {
+  if (images.length <= 1) return;
+  showSlide(currentIdx + 1);
+}
+
+function prevSlide() {
+  if (images.length <= 1) return;
+  showSlide(currentIdx - 1);
+}
+
+// ── Load ──
+async function loadPosters() {
+  const week = getWeekKey();
+  const staticBase = getStaticBase();
+  const url = staticBase
+    ? staticBase + 'data/posters/' + week + '/manifest.json'
+    : '/api/posters/' + week;
+
+  try {
+    const r = await fetch(url);
+    const data = await r.json();
+    images = data.images || [];
+
+    if (!images.length) {
+      document.getElementById('empty-state').style.display = 'flex';
+      document.getElementById('slideshow-wrap').style.display = 'none';
+      return;
+    }
+
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('slideshow-wrap').style.display = 'flex';
+    renderDots();
+    showSlide(0);
+  } catch (e) {
+    document.getElementById('empty-state').style.display = 'flex';
+    document.getElementById('slideshow-wrap').style.display = 'none';
+  }
+}
+
+// ── Keyboard ──
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft')  prevSlide();
+  if (e.key === 'ArrowRight') nextSlide();
+});
+
+// ── Touch / swipe ──
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].screenX;
+});
+document.addEventListener('touchend', (e) => {
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  if (Math.abs(dx) < 40) return;
+  if (dx < 0) nextSlide();
+  else        prevSlide();
+});
+
+// ── Click left/right half of image ──
+document.getElementById('slide-img').addEventListener('click', (e) => {
+  const rect = e.target.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  if (x < rect.width / 2) prevSlide();
+  else                     nextSlide();
+});
+
+document.addEventListener('DOMContentLoaded', loadPosters);
+</script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USTC Astro Coffee 投票</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #f5f2eb;
+    --surface: #ffffff;
+    --border:  #ddd8ce;
+    --border2: #c8c2b5;
+    --accent:  #1a56a0;
+    --text:    #1a1a1a;
+    --muted:   #6b6560;
+    --gold:    #b8860b;
+    --tag-bg:  #e8e4dc;
+    --coffee:  #6f4e37;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--text);
+    padding: 1.2rem 3rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .site-title {
+    font-family: "Source Serif 4", serif;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  .site-title span { color: var(--accent); }
+  nav-links { display: flex; gap: 1rem; margin-left: auto; }
+
+  /* ── Nav tabs ── */
+  .nav-tabs {
+    background: var(--tag-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 3rem;
+    display: flex;
+    gap: 0;
+  }
+  .nav-tab {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.7rem 1.2rem;
+    text-decoration: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--coffee); border-bottom-color: var(--coffee); }
+
+  /* ── Main ── */
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+
+  .page-title {
+    font-family: "Source Serif 4", serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .page-sub {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+
+  /* ── 投票区 ── */
+  .vote-section h2 {
+    font-family: "Source Serif 4", serif;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .name-row {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    align-items: center;
+  }
+  .name-row input {
+    flex: 1;
+    font-family: "Inter", sans-serif;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.8rem;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+  }
+  .name-row input:focus { border-color: var(--accent); }
+
+  .drinks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .drink-btn {
+    font-family: "Inter", sans-serif;
+    font-size: 0.82rem;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .drink-btn:hover { border-color: var(--coffee); color: var(--coffee); }
+  .drink-btn.selected {
+    border-color: var(--coffee);
+    background: #f5ede6;
+    color: var(--coffee);
+    font-weight: 500;
+  }
+  .drink-btn .tag {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.6rem;
+    background: var(--coffee);
+    color: #fff;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-left: auto;
+  }
+
+  .submit-btn {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.7rem;
+    background: var(--coffee);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .submit-btn:hover { opacity: 0.85; }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .cancel-btn {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8rem;
+    padding: 0.7rem 1rem;
+    background: transparent;
+    color: #c0392b;
+    border: 1px solid #c0392b;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .cancel-btn:hover { background: #fdf0ee; }
+
+  .my-vote-note {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.6rem;
+    text-align: center;
+  }
+  .my-vote-note strong { color: var(--coffee); }
+
+  /* ── 排行榜 ── */
+  .results-section h2 {
+    font-family: "Source Serif 4", serif;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .total-votes {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .result-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .result-rank {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    width: 1.5rem;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .result-rank.top { color: var(--gold); font-weight: 500; }
+  .result-name {
+    font-size: 0.88rem;
+    flex: 1;
+    min-width: 0;
+  }
+  .result-bar-wrap {
+    width: 80px;
+    height: 6px;
+    background: var(--tag-bg);
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .result-bar {
+    height: 100%;
+    background: var(--coffee);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+  .result-count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    width: 2rem;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .result-voters {
+    font-size: 0.7rem;
+    color: var(--muted);
+    width: 100%;
+    padding-left: 2.3rem;
+    margin-top: -0.3rem;
+    margin-bottom: 0.2rem;
+  }
+  .empty-result {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    padding: 2rem 0;
+    text-align: center;
+  }
+
+  @media (max-width: 700px) {
+    header { padding: 1rem 1.2rem; }
+    .nav-tabs { padding: 0 1.2rem; }
+    main { padding: 1.2rem 1rem 3rem; }
+    .layout { grid-template-columns: 1fr; }
+    .drinks-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="site-title" href="/">USTC <span>Astro</span> Coffee</a>
+</header>
+
+<div class="nav-tabs">
+  <a class="nav-tab" href="/">📄 论文</a>
+  <a class="nav-tab active" href="/coffee_vote">☕ 咖啡投票</a>
+  <a class="nav-tab" href="/poster">🖼 海报</a>
+</div>
+
+<main>
+  <div class="page-title">☕ 本周咖啡投票</div>
+  <!-- <div class="page-sub">每人每周可投一次，可更改</div> -->
+
+  <div class="layout">
+    <!-- 投票 -->
+    <div class="vote-section">
+      <h2>选择你的饮品</h2>
+      <div class="name-row">
+        <input type="text" id="voter-name" placeholder="备注（可选，默认 anomaly）" maxlength="20"/>
+      </div>
+      <div class="drinks-grid" id="drinks-grid"></div>
+      <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+        <button class="submit-btn" id="submit-btn" onclick="submitVote()" style="margin-top:0;flex:1;">提交投票</button>
+        <button class="cancel-btn" id="cancel-btn" onclick="cancelVote()" style="display:none;">取消投票</button>
+      </div>
+      <div class="my-vote-note" id="my-vote-note"></div>
+    </div>
+
+    <!-- 排行榜 -->
+    <div class="results-section">
+      <h2>
+        本周排行
+        <span class="total-votes" id="total-votes"></span>
+      </h2>
+      <div id="results-list"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const DRINKS = [
+  "其他（填备注中）", "生椰拿铁", "瑞之抹茶", "鲜萃轻轻茉莉",
+  "柚C美式", "精萃澳瑞白", "柠C美式", "标准美式",
+  "苹果C美式", "茉莉花香拿铁", "加浓美式",
+  "生椰杨枝甘露", "橙C美式", "小黄油拿铁",
+  "羽衣轻体果蔬茶", "小黄油美式", "轻椰茉莉拿铁", "冰吸生椰拿铁","埃塞金烘美式","苦瓜轻体美式", "陨石拿铁"
+];
+const TOP_DRINKS = []; // 不标记推荐
+
+// 固定投票池，不自动清空。管理员访问 /refresh 清空并存档后开新一期。
+function getWeekKey() {
+  return 'current';
+}
+
+function getDeviceId() {
+  let id = localStorage.getItem('device_id');
+  if (!id) {
+    id = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem('device_id', id);
+  }
+  return id;
+}
+
+// 渲染饮品按钮
+let selectedDrink = null;
+function renderDrinks(myVote) {
+  const grid = document.getElementById('drinks-grid');
+  grid.innerHTML = DRINKS.map(d => `
+    <button class="drink-btn ${myVote === d ? 'selected' : ''}"
+            onclick="selectDrink('${d}', this)">
+      ${d}
+
+    </button>
+  `).join('');
+  if (myVote) selectedDrink = myVote;
+}
+
+function selectDrink(name, btn) {
+  selectedDrink = name;
+  document.querySelectorAll('.drink-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// 渲染排行榜
+function renderResults(votes) {
+  const list = document.getElementById('results-list');
+  const total = document.getElementById('total-votes');
+  const entries = Object.entries(votes);
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty-result">本周暂无投票</div>';
+    total.textContent = '';
+    return;
+  }
+
+  // 统计
+  const counts = {};
+  const voters = {};
+  for (const [, info] of entries) {
+    counts[info.drink] = (counts[info.drink] || 0) + 1;
+    voters[info.drink] = voters[info.drink] || [];
+    voters[info.drink].push(info.name || 'Anonymous');
+  }
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+  const max = sorted[0]?.[1] || 1;
+  const totalCount = entries.length;
+
+  total.textContent = `共 ${totalCount} 票`;
+  list.innerHTML = sorted.map(([drink, count], i) => `
+    <div class="result-item">
+      <span class="result-rank ${i<3?'top':''}">${i+1}</span>
+      <span class="result-name">${drink}</span>
+      <div class="result-bar-wrap">
+        <div class="result-bar" style="width:${Math.round(count/max*100)}%"></div>
+      </div>
+      <span class="result-count">${count}</span>
+    </div>
+    <div class="result-voters">${voters[drink].join('、')}</div>
+  `).join('');
+}
+
+// 加载投票数据
+async function cancelVote() {
+  if (!confirm('确认取消本周投票？')) return;
+  const btn = document.getElementById('cancel-btn');
+  btn.textContent = '取消中...';
+  btn.disabled = true;
+  try {
+    const week = getWeekKey();
+    const r = await fetch('/coffee_votes/' + week + '/cancel', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({device_id: getDeviceId()})
+    });
+    const data = await r.json();
+    if (data.ok) {
+      selectedDrink = null;
+      document.querySelectorAll('.drink-btn').forEach(b => b.classList.remove('selected'));
+      renderResults(data.votes);
+      document.getElementById('my-vote-note').innerHTML = '';
+      btn.style.display = 'none';
+    }
+  } finally {
+    btn.textContent = '取消投票';
+    btn.disabled = false;
+  }
+}
+
+async function loadVotes() {
+  const week = getWeekKey();
+  try {
+    const r = await fetch('/coffee_votes/' + week);
+    const data = await r.json();
+    const votes = data.votes || {};
+    const myDeviceId = getDeviceId();
+    const myVote = votes[myDeviceId]?.drink || null;
+
+    renderDrinks(myVote);
+    renderResults(votes);
+
+    if (myVote) {
+      document.getElementById('my-vote-note').innerHTML =
+        `你本周已投：<strong>${myVote}</strong>（可重新选择后提交更改）`;
+      document.getElementById('cancel-btn').style.display = 'block';
+      const savedName = votes[myDeviceId]?.name || '';
+      if (savedName) document.getElementById('voter-name').value = savedName;
+    }
+  } catch(e) {
+    renderDrinks(null);
+  }
+}
+
+async function submitVote() {
+  if (!selectedDrink) { alert('请先选择一种饮品'); return; }
+  const name = document.getElementById('voter-name').value.trim() || 'anomaly';
+  localStorage.setItem('rating_author', name);
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = '提交中...';
+  try {
+    const week = getWeekKey();
+    const r = await fetch('/coffee_votes/' + week, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({drink: selectedDrink, name, device_id: getDeviceId()})
+    });
+    const data = await r.json();
+    if (data.ok) {
+      renderResults(data.votes);
+      document.getElementById('my-vote-note').innerHTML =
+        `✓ 已投票：<strong>${selectedDrink}</strong>`;
+      document.getElementById('cancel-btn').style.display = 'block';
+    }
+  } finally {
+    btn.disabled = false; btn.textContent = '提交投票';
+  }
+}
+
+// 恢复名字
+const savedName = localStorage.getItem('rating_author');
+if (savedName) document.getElementById('voter-name').value = savedName;
+
+document.addEventListener('DOMContentLoaded', loadVotes);
+</script>
+</body>
+</html>

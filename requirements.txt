@@ -1,0 +1,7 @@
+beautifulsoup4
+fastapi
+jinja2
+markdown
+paramiko
+requests
+uvicorn
