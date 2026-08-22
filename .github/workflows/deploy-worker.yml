@@ -24,7 +24,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: worker
           wranglerVersion: "4.125.0"
-          command: d1 migrations apply coffee-break-db --remote --yes
+          command: d1 migrations apply coffee-break-db --remote
 
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
