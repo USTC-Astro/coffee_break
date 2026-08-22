@@ -34,7 +34,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-fetch.txt
           python -m pip install -r requirements-static.txt
-          python -m pip install "git+https://github.com/USTC-Astro/coffee_break_poster.git"
+          git clone --depth 1 https://github.com/USTC-Astro/coffee_break_poster.git /tmp/coffee_break_poster
+          python -m pip install -e /tmp/coffee_break_poster
           python -m playwright install --with-deps chromium
 
       - name: Refresh Benty agenda
@@ -54,6 +55,8 @@ jobs:
       - name: Generate coffee-break posters
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          CBP_CMD: python /tmp/coffee_break_poster/tools/cbp.py
+          PYTHONPATH: /tmp/coffee_break_poster
         run: |
           if [ -z "$DEEPSEEK_API_KEY" ]; then
             echo "DEEPSEEK_API_KEY is not configured; skipping poster generation."

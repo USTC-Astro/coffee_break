@@ -22,6 +22,7 @@ from prepare_cbp_paper import DATA_DIR, clean_inline, extract_abstract, extract_
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 DEFAULT_MODEL = "deepseek-v4-flash"
+CBP_CMD = os.environ.get("CBP_CMD", "cbp").split()
 
 
 def current_papers() -> list[dict[str, Any]]:
@@ -300,10 +301,10 @@ def generate_one(paper: dict[str, Any], args: argparse.Namespace, api_key: str |
         content = fallback_content(arxiv_id, title)
 
     figure_count = min(2, max(1, len(figures)))
-    run(["cbp", "scaffold", str(paper_dir), "--figure-count", str(figure_count), "--overwrite"])
+    run(CBP_CMD + ["scaffold", str(paper_dir), "--figure-count", str(figure_count), "--overwrite"])
     edit_poster(paper_dir, arxiv_id, title, content, figures)
-    run(["cbp", "check", str(paper_dir / "poster.html"), "--json-out", str(paper_dir / "layout.json")])
-    run(["cbp", "render", str(paper_dir / "poster.html"), "--png", "--pdf"])
+    run(CBP_CMD + ["check", str(paper_dir / "poster.html"), "--json-out", str(paper_dir / "layout.json")])
+    run(CBP_CMD + ["render", str(paper_dir / "poster.html"), "--png", "--pdf"])
     return publish_outputs(paper_dir, arxiv_id, rank)
 
 
