@@ -56,7 +56,7 @@ def rewrite_html(html: str, path_from_site_root: str, coffee_api_base: str = "")
     prefix = page_prefix(path_from_site_root)
     static_css = (
         "<style>"
-        ".btn-discussed,.link-discussed,.rating-dropdown,.thought-input-area{display:none!important}"
+        ".btn-discussed,.link-discussed,.rating-dropdown,.thoughts-section{display:none!important}"
         "</style>"
     )
     config_script = (
