@@ -1,0 +1,402 @@
+{
+  "html": "/home/runner/work/coffee_break/coffee_break/cbp_work/2606.30711/poster.html",
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "errors": [],
+  "warnings": [],
+  "error_details": [],
+  "warning_details": [],
+  "measurements": {
+    "bodyScrollW": 1920,
+    "bodyScrollH": 1080,
+    "viewportW": 1920,
+    "viewportH": 1080,
+    "poster": {
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "bottom": 1080,
+      "right": 1920,
+      "label": "poster",
+      "selector": "[data-role=\"poster\"]",
+      "scrollW": 1918,
+      "clientW": 1918,
+      "scrollH": 1078,
+      "clientH": 1078,
+      "overflowX": 0,
+      "overflowY": 0,
+      "cssOverflowX": "hidden",
+      "cssOverflowY": "hidden",
+      "childOverflow": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      }
+    },
+    "header": {
+      "x": 43,
+      "y": 33,
+      "w": 1834,
+      "h": 208,
+      "bottom": 241,
+      "right": 1877,
+      "label": "header",
+      "selector": "[data-role=\"header\"]",
+      "scrollW": 1834,
+      "clientW": 1834,
+      "scrollH": 208,
+      "clientH": 208,
+      "overflowX": 0,
+      "overflowY": 0,
+      "cssOverflowX": "visible",
+      "cssOverflowY": "visible",
+      "childOverflow": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      }
+    },
+    "text": {
+      "x": 43,
+      "y": 265,
+      "w": 769.219,
+      "h": 776,
+      "bottom": 1041,
+      "right": 812.219,
+      "label": "text column",
+      "selector": "[data-role=\"text-column\"]",
+      "scrollW": 769,
+      "clientW": 769,
+      "scrollH": 776,
+      "clientH": 776,
+      "overflowX": 0,
+      "overflowY": 0,
+      "cssOverflowX": "hidden",
+      "cssOverflowY": "hidden",
+      "childOverflow": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      }
+    },
+    "figurePanel": {
+      "x": 840.219,
+      "y": 265,
+      "w": 1036.781,
+      "h": 776,
+      "bottom": 1041,
+      "right": 1877,
+      "label": "figure panel",
+      "selector": "[data-role=\"figure-panel\"]",
+      "scrollW": 1037,
+      "clientW": 1037,
+      "scrollH": 776,
+      "clientH": 776,
+      "overflowX": 0,
+      "overflowY": 0,
+      "cssOverflowX": "visible",
+      "cssOverflowY": "visible",
+      "childOverflow": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      }
+    },
+    "figures": [
+      {
+        "index": 1,
+        "card": {
+          "x": 840.219,
+          "y": 265,
+          "w": 598.719,
+          "h": 776,
+          "bottom": 1041,
+          "right": 1438.938
+        },
+        "img": {
+          "x": 849.219,
+          "y": 274,
+          "w": 580.719,
+          "h": 699.281,
+          "bottom": 973.281,
+          "right": 1429.938,
+          "naturalW": 2984,
+          "naturalH": 2349,
+          "src": "assets/HRD_v3.png"
+        }
+      },
+      {
+        "index": 2,
+        "card": {
+          "x": 1460.938,
+          "y": 265,
+          "w": 416.047,
+          "h": 776,
+          "bottom": 1041,
+          "right": 1876.984
+        },
+        "img": {
+          "x": 1469.938,
+          "y": 274,
+          "w": 398.047,
+          "h": 674.922,
+          "bottom": 948.922,
+          "right": 1867.984,
+          "naturalW": 3226,
+          "naturalH": 6202,
+          "src": "assets/lineprofiles_v2.png"
+        }
+      }
+    ],
+    "boxes": [
+      {
+        "x": 43,
+        "y": 265,
+        "w": 769.219,
+        "h": 231.188,
+        "bottom": 496.188,
+        "right": 812.219,
+        "label": "text card 1",
+        "selector": ".text-card:nth-of-type(1)",
+        "scrollW": 769,
+        "clientW": 769,
+        "scrollH": 229,
+        "clientH": 229,
+        "overflowX": 0,
+        "overflowY": 0,
+        "cssOverflowX": "hidden",
+        "cssOverflowY": "hidden",
+        "childOverflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        }
+      },
+      {
+        "x": 43,
+        "y": 514.188,
+        "w": 769.219,
+        "h": 143.844,
+        "bottom": 658.031,
+        "right": 812.219,
+        "label": "text card 2",
+        "selector": ".text-card:nth-of-type(2)",
+        "scrollW": 769,
+        "clientW": 769,
+        "scrollH": 142,
+        "clientH": 142,
+        "overflowX": 0,
+        "overflowY": 0,
+        "cssOverflowX": "hidden",
+        "cssOverflowY": "hidden",
+        "childOverflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        }
+      },
+      {
+        "x": 43,
+        "y": 676.031,
+        "w": 769.219,
+        "h": 364.969,
+        "bottom": 1041,
+        "right": 812.219,
+        "label": "text card 3",
+        "selector": ".text-card:nth-of-type(3)",
+        "scrollW": 769,
+        "clientW": 769,
+        "scrollH": 363,
+        "clientH": 363,
+        "overflowX": 0,
+        "overflowY": 0,
+        "cssOverflowX": "hidden",
+        "cssOverflowY": "hidden",
+        "childOverflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        }
+      },
+      {
+        "x": 840.219,
+        "y": 265,
+        "w": 598.719,
+        "h": 776,
+        "bottom": 1041,
+        "right": 1438.938,
+        "label": "figure card 1",
+        "selector": "[data-role=\"figure-card\"]:nth-of-type(1)",
+        "scrollW": 597,
+        "clientW": 597,
+        "scrollH": 774,
+        "clientH": 774,
+        "overflowX": 0,
+        "overflowY": 0,
+        "cssOverflowX": "visible",
+        "cssOverflowY": "visible",
+        "childOverflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        }
+      },
+      {
+        "x": 1460.938,
+        "y": 265,
+        "w": 416.047,
+        "h": 776,
+        "bottom": 1041,
+        "right": 1876.984,
+        "label": "figure card 2",
+        "selector": "[data-role=\"figure-card\"]:nth-of-type(2)",
+        "scrollW": 414,
+        "clientW": 414,
+        "scrollH": 774,
+        "clientH": 774,
+        "overflowX": 0,
+        "overflowY": 0,
+        "cssOverflowX": "visible",
+        "cssOverflowY": "visible",
+        "childOverflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        }
+      },
+      {
+        "x": 849.219,
+        "y": 981.281,
+        "w": 580.719,
+        "h": 50.719,
+        "bottom": 1032,
+        "right": 1429.938,
+        "label": "figure caption 1",
+        "selector": "[data-role=\"figure-card\"] figcaption:nth-of-type(1)",
+        "scrollW": 581,
+        "clientW": 581,
+        "scrollH": 51,
+        "clientH": 51,
+        "overflowX": 0,
+        "overflowY": 0,
+        "cssOverflowX": "hidden",
+        "cssOverflowY": "hidden",
+        "childOverflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        }
+      },
+      {
+        "x": 1469.938,
+        "y": 956.922,
+        "w": 398.047,
+        "h": 75.078,
+        "bottom": 1032,
+        "right": 1867.984,
+        "label": "figure caption 2",
+        "selector": "[data-role=\"figure-card\"] figcaption:nth-of-type(2)",
+        "scrollW": 398,
+        "clientW": 398,
+        "scrollH": 75,
+        "clientH": 75,
+        "overflowX": 0,
+        "overflowY": 0,
+        "cssOverflowX": "hidden",
+        "cssOverflowY": "hidden",
+        "childOverflow": {
+          "left": 0.001,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        }
+      },
+      {
+        "x": 43,
+        "y": 33,
+        "w": 1834,
+        "h": 208,
+        "bottom": 241,
+        "right": 1877,
+        "label": "header 1",
+        "selector": "[data-role=\"header\"]:nth-of-type(1)",
+        "scrollW": 1834,
+        "clientW": 1834,
+        "scrollH": 208,
+        "clientH": 208,
+        "overflowX": 0,
+        "overflowY": 0,
+        "cssOverflowX": "visible",
+        "cssOverflowY": "visible",
+        "childOverflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        }
+      },
+      {
+        "x": 1211,
+        "y": 37,
+        "w": 660,
+        "h": 164.313,
+        "bottom": 201.313,
+        "right": 1871,
+        "label": "meta 1",
+        "selector": "[data-role=\"meta\"]:nth-of-type(1)",
+        "scrollW": 660,
+        "clientW": 660,
+        "scrollH": 164,
+        "clientH": 164,
+        "overflowX": 0,
+        "overflowY": 0,
+        "cssOverflowX": "visible",
+        "cssOverflowY": "visible",
+        "childOverflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        }
+      },
+      {
+        "x": 49,
+        "y": 37,
+        "w": 1110.281,
+        "h": 120,
+        "bottom": 157,
+        "right": 1159.281,
+        "label": "headline 1",
+        "selector": "[data-role=\"headline\"]:nth-of-type(1)",
+        "scrollW": 1110,
+        "clientW": 1110,
+        "scrollH": 123,
+        "clientH": 120,
+        "overflowX": 0,
+        "overflowY": 3,
+        "cssOverflowX": "visible",
+        "cssOverflowY": "visible",
+        "childOverflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        }
+      }
+    ]
+  },
+  "ok": true
+}
