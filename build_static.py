@@ -19,6 +19,7 @@ TMPL_DIR = BASE_DIR / "templates"
 
 WEEK_RE = re.compile(r"^(current|\d{4}-\d{2}-\d{2}-[A-Za-z]{3})$")
 POSTER_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}
+PHOTO_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
 
 def load_papers(json_path: Path | None = None) -> list[dict]:
@@ -37,6 +38,41 @@ def get_mtime() -> str:
     if not json_file.exists():
         return "未知"
     return datetime.fromtimestamp(json_file.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+
+
+def load_home_gallery() -> tuple[list[dict], list[dict]]:
+    sections_config = [
+        ("activity", "活动照片", "讨论现场、白板、投影和大家围坐聊天的瞬间。", ["Activity photo", "Discussion photo", "Group photo"]),
+        ("coffee", "咖啡", "每周最现实也最重要的投票结果。", ["Coffee photo", "Latte photo", "Americano photo"]),
+        ("snacks", "零食", "支撑长讨论的小甜点、面包和临时补给。", ["Snack photo", "Dessert photo", "Bread photo"]),
+    ]
+    sections = []
+    hero_photos = []
+    root = DATA_DIR / "home_photos"
+    for key, title, desc, placeholders in sections_config:
+        folder = root / key
+        photos = []
+        if folder.exists():
+            files = sorted(
+                p for p in folder.iterdir()
+                if p.is_file() and p.suffix.lower() in PHOTO_EXTS
+            )
+            for p in files:
+                photo = {
+                    "url": f"data/home_photos/{key}/{p.name}",
+                    "alt": title,
+                    "label": title,
+                }
+                photos.append(photo)
+                hero_photos.append(photo)
+        sections.append({
+            "key": key,
+            "title": title,
+            "desc": desc,
+            "photos": photos,
+            "placeholders": placeholders,
+        })
+    return hero_photos, sections
 
 
 def ensure_clean_dir(path: Path) -> None:
@@ -61,9 +97,11 @@ def rewrite_html(html: str, path_from_site_root: str) -> str:
     html = html.replace("</head>", f"{static_css}\n</head>")
     replacements = [
         (r'href="/"', f'href="{prefix}index.html"'),
+        (r'href="/papers"', f'href="{prefix}papers/index.html"'),
         (r'href="/coffee_vote"', f'href="{prefix}coffee_vote/index.html"'),
         (r'href="/coffee_vote_test"', f'href="{prefix}coffee_vote_test/index.html"'),
         (r'href="/poster"', f'href="{prefix}poster/index.html"'),
+        (r"href='/papers'", f"href='{prefix}papers/index.html'"),
         (r"href='/coffee_vote'", f"href='{prefix}coffee_vote/index.html'"),
         (r"href='/coffee_vote_test'", f"href='{prefix}coffee_vote_test/index.html'"),
         (r"href='/poster'", f"href='{prefix}poster/index.html'"),
@@ -91,6 +129,7 @@ def rewrite_html(html: str, path_from_site_root: str) -> str:
     html = html.replace('src="/data/', f'src="{prefix}data/')
     html = html.replace('href="/data/', f'href="{prefix}data/')
     html = html.replace("location='/data/", f"location='{prefix}data/")
+    html = html.replace('data-poster-url="data/', f'data-poster-url="{prefix}data/')
     html = html.replace('fetch(\'/api/posters/\'', f"fetch('{prefix}api/posters-static-disabled/'")
     html = html.replace(
         "<script>\n// ── 固定海报目录 current",
@@ -157,17 +196,24 @@ def render_site(site_dir: Path) -> None:
     hist_dir = DATA_DIR / "history"
     history_dates = sorted([p.stem for p in hist_dir.glob("*.json")], reverse=True) if hist_dir.exists() else []
 
-    index_html = env.get_template("index.html").render(
+    hero_photos, gallery_sections = load_home_gallery()
+    home_html = env.get_template("home.html").render(
+        hero_photos=hero_photos,
+        gallery_sections=gallery_sections,
+    )
+    write_page(site_dir, "index.html", home_html)
+
+    papers_html = env.get_template("papers.html").render(
         papers=load_papers(),
         updated=get_mtime(),
         history_dates=history_dates,
         current_date=None,
     )
-    write_page(site_dir, "index.html", index_html)
+    write_page(site_dir, "papers/index.html", papers_html)
 
     for date in history_dates:
         hist_file = hist_dir / f"{date}.json"
-        history_html = env.get_template("index.html").render(
+        history_html = env.get_template("papers.html").render(
             papers=load_papers(hist_file),
             updated=date,
             history_dates=history_dates,

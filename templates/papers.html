@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USTC Astro Coffee Break</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [["$","$"],["\\(","\\)"]],
+    displayMath: [["$$","$$"],["\\[","\\]"]]
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+  :root {
+    --bg:       #f5f2eb;
+    --surface:  #ffffff;
+    --border:   #ddd8ce;
+    --border2:  #c8c2b5;
+    --accent:   #1a56a0;
+    --accent2:  #c0392b;
+    --text:     #1a1a1a;
+    --muted:    #6b6560;
+    --gold:     #b8860b;
+    --tag-bg:   #e8e4dc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--text);
+    padding: 1.2rem 3rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .site-title {
+    font-family: "Source Serif 4", serif;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .site-title span { color: var(--accent); }
+  .site-sub {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-left: 1px solid var(--border2);
+    padding-left: 1.5rem;
+  }
+
+  /* ── Meta bar ── */
+  .meta-bar {
+    background: var(--tag-bg);
+    padding: 0.6rem 3rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    font-size: 0.76rem;
+    color: var(--muted);
+    font-family: "JetBrains Mono", monospace;
+    flex-wrap: wrap;
+  }
+  .meta-bar a.btn {
+    color: var(--accent);
+    text-decoration: none;
+    padding: 0.25rem 0.7rem;
+    border: 1px solid var(--accent);
+    border-radius: 3px;
+    font-size: 0.7rem;
+    transition: all 0.15s;
+  }
+  .meta-bar a.btn:hover { background: var(--accent); color: #fff; }
+  .dot { color: var(--border2); }
+
+  /* ── 历史下拉 ── */
+  .hist-dropdown { position: relative; display: inline-block; }
+  .hist-btn {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    cursor: pointer;
+    padding: 0.25rem 0.7rem;
+    border: 1px solid var(--accent);
+    border-radius: 3px;
+    user-select: none;
+    transition: all 0.15s;
+  }
+  .hist-btn:hover { background: var(--accent); color: #fff; }
+  .hist-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    min-width: 140px;
+    z-index: 100;
+    max-height: 280px;
+    overflow-y: auto;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  .hist-dropdown:hover .hist-menu { display: flex; flex-direction: column; }
+  .hist-menu a {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--text);
+    padding: 0.45rem 1rem;
+    text-decoration: none;
+    border: none;
+    transition: background 0.1s;
+  }
+  .hist-menu a:hover { background: var(--tag-bg); color: var(--accent); }
+  .hist-menu a.active { color: var(--gold); font-weight: 500; }
+
+  /* ── Main ── */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .section-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Paper cards ── */
+  .papers { display: flex; flex-direction: column; gap: 0; }
+
+  .paper-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 1.2rem 1.4rem;
+    display: flex;
+    flex-direction: row;
+    gap: 1.2rem;
+    align-items: flex-start;
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  .paper-card:first-child { border-top: 1px solid var(--border); border-radius: 6px 6px 0 0; }
+  .paper-card:last-child { border-radius: 0 0 6px 6px; }
+  .paper-card:only-child { border-radius: 6px; border-top: 1px solid var(--border); }
+  .paper-card:hover { background: #faf8f3; }
+  .paper-card.top1 { border-left: 3px solid var(--gold); }
+  .paper-card.top2 { border-left: 3px solid var(--border2); }
+
+  .vote-badge {
+    flex: 0 0 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 0.1rem;
+  }
+  .vote-num {
+    font-family: "Source Serif 4", serif;
+    font-size: 1.7rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--gold);
+  }
+  .vote-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.58rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+
+  .paper-info { flex: 1; min-width: 0; }
+  .paper-title {
+    font-family: "Source Serif 4", serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.45;
+    margin-bottom: 0.35rem;
+  }
+  .paper-author {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 0.35rem;
+  }
+  .paper-id {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    display: inline-block;
+  }
+
+  .paper-action {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+    padding-top: 0.1rem;
+  }
+  .btn-sm {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 3px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.15s;
+    display: inline-block;
+  }
+  .btn-summary { border: 1px solid var(--accent); color: var(--accent); background: transparent; }
+  .btn-summary:hover { background: var(--accent); color: #fff; }
+  .btn-arxiv { border: 1px solid var(--border2); color: var(--muted); }
+  .btn-arxiv:hover { border-color: var(--muted); color: var(--text); }
+
+  .btn-discussed {
+    border: 1px solid #888;
+    color: #888;
+    background: transparent;
+    cursor: pointer;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .btn-discussed:hover { border-color: #c0392b; color: #c0392b; }
+  .paper-card.discussed { opacity: 0.4; pointer-events: none; }
+
+  .rating-summary-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.4rem;
+  }
+  .rating-chip-sm {
+    font-size: 0.72rem;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.1rem 0.55rem;
+    color: var(--text);
+    pointer-events: none;
+  }
+  .rating-chip-sm span { color: var(--muted); font-size: 0.65rem; margin-left: 0.2rem; }
+
+  .nav-tabs {
+    background: var(--tag-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 3rem;
+    display: flex;
+    gap: 0;
+  }
+  .nav-tab {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    padding: 0.7rem 1.2rem;
+    text-decoration: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: #6f4e37; border-bottom-color: #6f4e37; }
+
+  .empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="site-title" href="/" style="text-decoration:none;">USTC <span>Astro</span> Coffee</a>
+  <div class="site-sub">Journal Club · Vote Agenda</div>
+</header>
+
+<div class="nav-tabs">
+  <a class="nav-tab" href="/">HOME</a>
+  <a class="nav-tab active" href="/papers">📄 论文</a>
+  <a class="nav-tab" href="/coffee_vote">☕ 咖啡投票</a>
+  <a class="nav-tab" href="/poster">🖼 海报</a>
+</div>
+
+<div class="meta-bar">
+  <span>最后更新：{{ updated }}</span>
+  <span class="dot">·</span>
+  <span>共 {{ papers|length }} 篇论文</span>
+  <span class="dot">·</span>
+  <div class="hist-dropdown">
+    <span class="hist-btn">📅 历史记录 ▾</span>
+    <div class="hist-menu">
+      {% if history_dates %}
+        {% for d in history_dates %}
+        <a href="/history/{{ d }}" class="{% if d == current_date %}active{% endif %}">{{ d }}</a>
+        {% endfor %}
+      {% else %}
+        <span style="padding:0.5rem 1rem;color:var(--muted)">暂无历史</span>
+      {% endif %}
+    </div><!-- /.hist-menu -->
+  </div><!-- /.hist-dropdown -->
+</div><!-- /.meta-bar -->
+
+<main>
+  <div class="section-label">当前 Agenda — 按票数排序</div>
+
+  {% if papers %}
+  <div class="papers">
+    {% for p in papers %}
+    <div class="paper-card {% if loop.index == 1 %}top1{% elif loop.index == 2 %}top2{% endif %}"
+         {% if p.has_poster %}
+         data-poster-url="data/generated_posters/{{ p.arxiv_id }}/poster.html"
+         {% endif %}
+         onclick="openPaperCard(this, 'https://arxiv.org/abs/{{ p.arxiv_id }}')">
+
+      <div class="vote-badge">
+        <div class="vote-num">{{ p.votes }}</div>
+        <div class="vote-label">votes</div>
+      </div>
+
+      <div class="paper-info">
+        <div class="paper-title">{{ p.title }}</div>
+        <div class="paper-author">{{ p.author[:120] }}{% if p.author|length > 120 %} …{% endif %}</div>
+        <span class="paper-id">arXiv:{{ p.arxiv_id }}</span>
+        <div class="rating-summary-inline" id="rating-{{ p.arxiv_id }}"></div>
+      </div>
+
+      <div class="paper-action">
+        {% if p.has_poster %}
+        <span class="btn-sm btn-summary">海报 →</span>
+        {% endif %}
+        <a class="btn-sm btn-arxiv"
+           href="https://arxiv.org/abs/{{ p.arxiv_id }}"
+           target="_blank"
+           onclick="event.stopPropagation()">arXiv ↗</a>
+        {% if not current_date %}
+        <button class="btn-sm btn-discussed"
+                onclick="event.stopPropagation(); markDiscussed('{{ p.arxiv_id }}', this)">
+          ✓ 已讨论
+        </button>
+        {% endif %}
+      </div>
+		</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">暂无数据，请先运行 fetch_benty.py 或点击「刷新」</div>
+  {% endif %}
+</main>
+
+<script>
+const ADMIN_TOKEN = "ustc1958";
+
+function openPaperCard(card, fallbackUrl) {
+  const posterUrl = card.dataset.posterUrl;
+  if (posterUrl) {
+    window.location = posterUrl;
+    return;
+  }
+  window.open(fallbackUrl, '_blank');
+}
+
+// 加载所有论文的评价汇总
+async function loadAllRatings() {
+  const divs = document.querySelectorAll('[id^="rating-"]');
+  for (const div of divs) {
+    const arxivId = div.id.replace('rating-', '');
+    try {
+      const r = await fetch('/ratings/' + arxivId);
+      const data = await r.json();
+      renderRatingSummary(div, data.ratings || {});
+    } catch(e) {}
+  }
+}
+
+function renderRatingSummary(div, ratings) {
+  const entries = Object.entries(ratings);
+  if (!entries.length) return;
+  const counts = {};
+  for (const [, info] of entries) {
+    counts[info.rating] = (counts[info.rating] || 0) + 1;
+  }
+  const order = ["🔥 夯","👑 顶级","🧑‍💻 人上人","😐 NPC","💩 拉完了"];
+  div.innerHTML = order
+    .filter(r => counts[r])
+    .map(r => `<span class="rating-chip-sm">${r}<span>${counts[r]}</span></span>`)
+    .join('');
+}
+
+document.addEventListener('DOMContentLoaded', loadAllRatings);
+async function markDiscussed(arxivId, btn) {
+  if (!confirm('标记「' + arxivId + '」为已讨论，并同步到 Benty-Fields？')) return;
+  btn.textContent = '处理中...';
+  btn.disabled = true;
+  try {
+    const r = await fetch('/mark_discussed/' + arxivId + '?token=' + ADMIN_TOKEN, {method: 'POST'});
+    if (r.status === 403) {
+      btn.textContent = '✗ 无权限';
+      btn.disabled = false;
+      return;
+    }
+    const data = await r.json();
+    if (data.ok) {
+      const card = btn.closest('.paper-card');
+      card.classList.add('discussed');
+      btn.textContent = data.benty_ok ? '✓ 已同步' : '✓ 本地已标记';
+    } else {
+      btn.textContent = '✗ 失败';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    btn.textContent = '✗ 失败';
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
