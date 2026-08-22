@@ -16,7 +16,7 @@ slideshows. Write actions are hidden in the static build.
 
 ```bash
 python3 -m venv .venv
-.venv/bin/python -m pip install markdown jinja2
+.venv/bin/python -m pip install -r requirements-static.txt
 .venv/bin/python build_static.py
 ```
 
