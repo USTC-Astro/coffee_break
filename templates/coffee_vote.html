@@ -359,6 +359,34 @@ function apiUrl(path) {
   return API_BASE + path;
 }
 
+async function fetchJson(path, options = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(apiUrl(path), {
+      ...options,
+      signal: controller.signal,
+    });
+    let data = {};
+    try {
+      data = await response.json();
+    } catch {
+      data = {};
+    }
+    if (!response.ok && !data.error) {
+      data.error = `HTTP ${response.status}`;
+    }
+    return data;
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      return {ok: false, error: 'Request timeout'};
+    }
+    return {ok: false, error: 'Network error'};
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function loadVoteCodeFromUrl() {
   const url = new URL(window.location.href);
   const code = url.searchParams.get('code');
@@ -451,18 +479,19 @@ async function cancelVote() {
   btn.disabled = true;
   try {
     const week = getWeekKey();
-    const r = await fetch(apiUrl('/coffee_votes/' + week + '/cancel'), {
+    const data = await fetchJson('/coffee_votes/' + week + '/cancel', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({device_id: getDeviceId()})
     });
-    const data = await r.json();
     if (data.ok) {
       selectedDrink = null;
       document.querySelectorAll('.drink-btn').forEach(b => b.classList.remove('selected'));
       renderResults(data.votes);
       document.getElementById('my-vote-note').innerHTML = '';
       btn.style.display = 'none';
+    } else if (data.error) {
+      alert(data.error === 'Request timeout' ? '网络超时：请试试关闭 VPN 或换一个网络' : data.error);
     }
   } finally {
     btn.textContent = '取消投票';
@@ -473,8 +502,7 @@ async function cancelVote() {
 async function loadVotes() {
   const week = getWeekKey();
   try {
-    const r = await fetch(apiUrl('/coffee_votes/' + week));
-    const data = await r.json();
+    const data = await fetchJson('/coffee_votes/' + week, {}, 8000);
     const votes = data.votes || {};
     const myDeviceId = getDeviceId();
     const myVote = votes[myDeviceId]?.drink || null;
@@ -491,6 +519,8 @@ async function loadVotes() {
     }
   } catch(e) {
     renderDrinks(null);
+    document.getElementById('results-list').innerHTML =
+      '<div class="empty-result">投票结果暂时加载失败</div>';
   }
 }
 
@@ -504,19 +534,25 @@ async function submitVote() {
   btn.disabled = true; btn.textContent = '提交中...';
   try {
     const week = getWeekKey();
-    const r = await fetch(apiUrl('/coffee_votes/' + week), {
+    const data = await fetchJson('/coffee_votes/' + week, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({drink: selectedDrink, name, device_id: getDeviceId(), code})
     });
-    const data = await r.json();
     if (data.ok) {
       renderResults(data.votes);
       document.getElementById('my-vote-note').innerHTML =
         `✓ 已投票：<strong>${selectedDrink}</strong>`;
       document.getElementById('cancel-btn').style.display = 'block';
     } else if (data.error) {
-      alert(data.error === 'Invalid vote code' ? '本周口令不正确' : data.error);
+      const message = data.error === 'Invalid vote code'
+        ? '本周口令不正确'
+        : data.error === 'Request timeout'
+          ? '网络超时：请试试关闭 VPN 或换一个网络'
+          : data.error === 'Network error'
+            ? '网络连接失败：请试试关闭 VPN 或换一个网络'
+            : data.error;
+      alert(message);
     }
   } finally {
     btn.disabled = false; btn.textContent = '提交投票';
