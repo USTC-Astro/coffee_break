@@ -72,8 +72,10 @@ def rewrite_html(html: str, path_from_site_root: str, coffee_api_base: str = "")
     replacements = [
         (r'href="/"', f'href="{prefix}index.html"'),
         (r'href="/coffee_vote"', f'href="{prefix}coffee_vote/index.html"'),
+        (r'href="/coffee_vote_test"', f'href="{prefix}coffee_vote_test/index.html"'),
         (r'href="/poster"', f'href="{prefix}poster/index.html"'),
         (r"href='/coffee_vote'", f"href='{prefix}coffee_vote/index.html'"),
+        (r"href='/coffee_vote_test'", f"href='{prefix}coffee_vote_test/index.html'"),
         (r"href='/poster'", f"href='{prefix}poster/index.html'"),
         (r"fetch('/ratings/' + arxivId)", "Promise.resolve({json: async () => ({ratings: {}})})"),
         (r"fetch('/thoughts/' + arxivId)", "Promise.resolve({json: async () => ({entries: []})})"),
@@ -196,6 +198,7 @@ def render_site(site_dir: Path, coffee_api_base: str = "") -> None:
 
     write_page(site_dir, "poster/index.html", (TMPL_DIR / "poster.html").read_text(encoding="utf-8"), coffee_api_base)
     write_page(site_dir, "coffee_vote/index.html", (TMPL_DIR / "coffee_vote.html").read_text(encoding="utf-8"), coffee_api_base)
+    write_page(site_dir, "coffee_vote_test/index.html", (TMPL_DIR / "coffee_vote_test.html").read_text(encoding="utf-8"), coffee_api_base)
 
 
 def main() -> None:
