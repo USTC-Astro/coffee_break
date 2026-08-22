@@ -1,0 +1,13 @@
+name = "coffee-break-api"
+main = "src/index.js"
+compatibility_date = "2026-08-22"
+
+[vars]
+# Comma-separated allowed origins. Include the GitHub Pages URL and any local
+# test origin you want to allow.
+ALLOWED_ORIGINS = "https://ustc-astro.github.io"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "coffee-break-db"
+database_id = "replace-with-cloudflare-d1-database-id"

@@ -1,0 +1,14 @@
+{
+  "name": "coffee-break-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "migrate:local": "wrangler d1 migrations apply coffee-break-db --local",
+    "migrate:remote": "wrangler d1 migrations apply coffee-break-db --remote"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
