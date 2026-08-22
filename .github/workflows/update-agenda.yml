@@ -31,6 +31,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements-fetch.txt
+          python -m pip install -r requirements-static.txt
 
       - name: Refresh Benty agenda
         env:
@@ -47,6 +48,8 @@ jobs:
           fi
 
       - name: Rebuild static manifests
+        env:
+          COFFEE_API_BASE: ${{ vars.COFFEE_API_BASE }}
         run: python build_static.py --output-dir site
 
       - name: Commit updates
