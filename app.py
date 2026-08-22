@@ -56,6 +56,7 @@ def _make_tls_session() -> requests.Session:
             ctx = create_urllib3_context()
             ctx.set_ciphers("DEFAULT@SECLEVEL=1")
             ctx.options |= ssl.OP_NO_SSLv2 | ssl.OP_NO_SSLv3
+            ctx.check_hostname = False
             kwargs["ssl_context"] = ctx
             super().init_poolmanager(*args, **kwargs)
 
