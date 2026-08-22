@@ -364,6 +364,7 @@ async function fetchJson(path, options = {}, timeoutMs = 10000) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(apiUrl(path), {
+      cache: 'no-store',
       ...options,
       signal: controller.signal,
     });
@@ -414,6 +415,9 @@ function getDeviceId() {
 
 // 渲染饮品按钮
 let selectedDrink = null;
+let votesLoading = false;
+let votePollTimer = null;
+
 function renderDrinks(myVote) {
   const grid = document.getElementById('drinks-grid');
   grid.innerHTML = '';
@@ -432,6 +436,31 @@ function selectDrink(name, btn) {
   selectedDrink = name;
   document.querySelectorAll('.drink-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
+}
+
+function applyMyVoteState(votes, options = {}) {
+  const myDeviceId = getDeviceId();
+  const myVote = votes[myDeviceId]?.drink || null;
+  const note = document.getElementById('my-vote-note');
+  const cancelBtn = document.getElementById('cancel-btn');
+
+  if (myVote) {
+    note.innerHTML = `你本周已投：<strong>${myVote}</strong>（可重新选择后提交更改）`;
+    cancelBtn.style.display = 'block';
+    const savedName = votes[myDeviceId]?.name || '';
+    if (savedName) document.getElementById('voter-name').value = savedName;
+    if (options.updateDrinkSelection) {
+      selectedDrink = myVote;
+      document.querySelectorAll('.drink-btn').forEach((btn) => {
+        btn.classList.toggle('selected', btn.textContent === myVote);
+      });
+    }
+  } else if (options.updateDrinkSelection) {
+    selectedDrink = null;
+    document.querySelectorAll('.drink-btn').forEach(b => b.classList.remove('selected'));
+    note.innerHTML = '';
+    cancelBtn.style.display = 'none';
+  }
 }
 
 // 渲染排行榜
@@ -499,29 +528,35 @@ async function cancelVote() {
   }
 }
 
-async function loadVotes() {
+async function loadVotes(options = {}) {
+  if (votesLoading) return;
+  votesLoading = true;
   const week = getWeekKey();
   try {
     const data = await fetchJson('/coffee_votes/' + week, {}, 8000);
     const votes = data.votes || {};
-    const myDeviceId = getDeviceId();
-    const myVote = votes[myDeviceId]?.drink || null;
-
-    renderDrinks(myVote);
-    renderResults(votes);
-
-    if (myVote) {
-      document.getElementById('my-vote-note').innerHTML =
-        `你本周已投：<strong>${myVote}</strong>（可重新选择后提交更改）`;
-      document.getElementById('cancel-btn').style.display = 'block';
-      const savedName = votes[myDeviceId]?.name || '';
-      if (savedName) document.getElementById('voter-name').value = savedName;
+    if (options.initial) {
+      const myVote = votes[getDeviceId()]?.drink || null;
+      renderDrinks(myVote);
     }
+    renderResults(votes);
+    applyMyVoteState(votes, {updateDrinkSelection: options.initial});
   } catch(e) {
-    renderDrinks(null);
-    document.getElementById('results-list').innerHTML =
-      '<div class="empty-result">投票结果暂时加载失败</div>';
+    if (options.initial) {
+      renderDrinks(null);
+      document.getElementById('results-list').innerHTML =
+        '<div class="empty-result">投票结果暂时加载失败</div>';
+    }
+  } finally {
+    votesLoading = false;
   }
+}
+
+function startVotePolling() {
+  if (votePollTimer) clearInterval(votePollTimer);
+  votePollTimer = setInterval(() => {
+    if (!document.hidden) loadVotes();
+  }, 5000);
 }
 
 async function submitVote() {
@@ -544,6 +579,7 @@ async function submitVote() {
       document.getElementById('my-vote-note').innerHTML =
         `✓ 已投票：<strong>${selectedDrink}</strong>`;
       document.getElementById('cancel-btn').style.display = 'block';
+      setTimeout(() => loadVotes(), 800);
     } else if (data.error) {
       const message = data.error === 'Invalid vote code'
         ? '本周口令不正确'
@@ -567,8 +603,12 @@ if (savedCode) document.getElementById('vote-code').value = savedCode;
 if (API_BASE) document.getElementById('vote-code-row').style.display = 'block';
 loadVoteCodeFromUrl();
 
-document.addEventListener('DOMContentLoaded', loadVotes);
+document.addEventListener('DOMContentLoaded', () => loadVotes({initial: true}));
 document.addEventListener('DOMContentLoaded', () => renderDrinks(null), {once: true});
+document.addEventListener('DOMContentLoaded', startVotePolling);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) loadVotes();
+});
 </script>
 </body>
 </html>
