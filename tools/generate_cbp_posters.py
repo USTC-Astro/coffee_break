@@ -61,7 +61,33 @@ def call_deepseek(api_key: str, model: str, messages: list[dict[str, str]]) -> d
         body = exc.read().decode("utf-8", errors="replace")
         raise RuntimeError(f"DeepSeek API error {exc.code}: {body}") from exc
     content = data["choices"][0]["message"]["content"]
-    return json.loads(content)
+    return parse_json_response(content)
+
+
+def parse_json_response(content: str) -> dict[str, Any]:
+    text = content.strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
+        text = re.sub(r"\s*```$", "", text)
+    try:
+        parsed = json.loads(text)
+    except json.JSONDecodeError:
+        match = re.search(r"\{.*\}", text, flags=re.DOTALL)
+        if not match:
+            raise
+        parsed = json.loads(match.group(0))
+    if not isinstance(parsed, dict):
+        raise ValueError("DeepSeek response JSON must be an object.")
+    return parsed
+
+
+def safe_call_deepseek(api_key: str, model: str, messages: list[dict[str, str]], arxiv_id: str, title: str) -> dict[str, Any]:
+    try:
+        return call_deepseek(api_key, model, messages)
+    except (json.JSONDecodeError, ValueError, KeyError) as exc:
+        print(f"warning: DeepSeek response for {arxiv_id} was not valid poster JSON: {exc}", file=sys.stderr)
+        print("warning: falling back to placeholder poster copy for this paper.", file=sys.stderr)
+        return fallback_content(arxiv_id, title)
 
 
 def make_messages(arxiv_id: str, title: str, abstract: str, figures: list[dict[str, str]]) -> list[dict[str, str]]:
@@ -317,7 +343,7 @@ def generate_one(paper: dict[str, Any], args: argparse.Namespace, api_key: str |
         return None
 
     if api_key and not args.dry_run:
-        content = call_deepseek(api_key, args.model, make_messages(arxiv_id, title, abstract, figures))
+        content = safe_call_deepseek(api_key, args.model, make_messages(arxiv_id, title, abstract, figures), arxiv_id, title)
     else:
         content = fallback_content(arxiv_id, title)
 
@@ -357,7 +383,11 @@ def main() -> None:
 
     manifest_items = []
     for rank, paper in enumerate(papers, start=1):
-        item = generate_one(paper, args, api_key, rank)
+        try:
+            item = generate_one(paper, args, api_key, rank)
+        except Exception as exc:
+            print(f"warning: failed to generate poster for {paper.get('arxiv_id', 'unknown')}: {exc}", file=sys.stderr)
+            continue
         if item:
             manifest_items.append(item)
 
