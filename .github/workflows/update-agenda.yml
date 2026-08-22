@@ -56,4 +56,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update coffee-break agenda"
-          file_pattern: "data site"
+          file_pattern: "data"
