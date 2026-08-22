@@ -19,7 +19,6 @@ TMPL_DIR = BASE_DIR / "templates"
 
 WEEK_RE = re.compile(r"^(current|\d{4}-\d{2}-\d{2}-[A-Za-z]{3})$")
 POSTER_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}
-PHOTO_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
 
 def load_papers(json_path: Path | None = None) -> list[dict]:
@@ -38,41 +37,6 @@ def get_mtime() -> str:
     if not json_file.exists():
         return "未知"
     return datetime.fromtimestamp(json_file.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
-
-
-def load_home_gallery() -> tuple[list[dict], list[dict]]:
-    sections_config = [
-        ("activity", "活动照片", "讨论现场、白板、投影和大家围坐聊天的瞬间。", ["Activity photo", "Discussion photo", "Group photo"]),
-        ("coffee", "咖啡", "每周最现实也最重要的投票结果。", ["Coffee photo", "Latte photo", "Americano photo"]),
-        ("snacks", "零食", "支撑长讨论的小甜点、面包和临时补给。", ["Snack photo", "Dessert photo", "Bread photo"]),
-    ]
-    sections = []
-    hero_photos = []
-    root = DATA_DIR / "home_photos"
-    for key, title, desc, placeholders in sections_config:
-        folder = root / key
-        photos = []
-        if folder.exists():
-            files = sorted(
-                p for p in folder.iterdir()
-                if p.is_file() and p.suffix.lower() in PHOTO_EXTS
-            )
-            for p in files:
-                photo = {
-                    "url": f"data/home_photos/{key}/{p.name}",
-                    "alt": title,
-                    "label": title,
-                }
-                photos.append(photo)
-                hero_photos.append(photo)
-        sections.append({
-            "key": key,
-            "title": title,
-            "desc": desc,
-            "photos": photos,
-            "placeholders": placeholders,
-        })
-    return hero_photos, sections
 
 
 def ensure_clean_dir(path: Path) -> None:
@@ -196,11 +160,7 @@ def render_site(site_dir: Path) -> None:
     hist_dir = DATA_DIR / "history"
     history_dates = sorted([p.stem for p in hist_dir.glob("*.json")], reverse=True) if hist_dir.exists() else []
 
-    hero_photos, gallery_sections = load_home_gallery()
-    home_html = env.get_template("home.html").render(
-        hero_photos=hero_photos,
-        gallery_sections=gallery_sections,
-    )
+    home_html = env.get_template("home.html").render()
     write_page(site_dir, "index.html", home_html)
 
     papers_html = env.get_template("papers.html").render(

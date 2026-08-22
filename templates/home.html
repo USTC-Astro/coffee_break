@@ -84,10 +84,7 @@
   }
 
   .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
-    gap: 2rem;
-    align-items: stretch;
+    max-width: 920px;
     margin-bottom: 2.4rem;
   }
   .hero-copy {
@@ -136,55 +133,6 @@
   }
   .quick-links a:hover { background: var(--accent); color: #fff; }
 
-  .photo-stack {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    min-height: 360px;
-  }
-  .lead-photo {
-    grid-column: span 2;
-    min-height: 220px;
-  }
-  .photo-tile {
-    position: relative;
-    overflow: hidden;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-  }
-  .photo-tile img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: cover;
-  }
-  .photo-label {
-    position: absolute;
-    left: 0.8rem;
-    bottom: 0.8rem;
-    font-family: "JetBrains Mono", monospace;
-    font-size: 0.68rem;
-    color: var(--surface);
-    background: rgba(26,26,26,0.72);
-    padding: 0.25rem 0.55rem;
-    border-radius: 3px;
-  }
-  .placeholder {
-    height: 100%;
-    min-height: 140px;
-    display: flex;
-    align-items: flex-end;
-    padding: 1rem;
-    background:
-      linear-gradient(135deg, rgba(111,78,55,0.15), rgba(26,86,160,0.10)),
-      var(--surface);
-    color: var(--muted);
-    font-family: "JetBrains Mono", monospace;
-    font-size: 0.72rem;
-    line-height: 1.6;
-  }
-
   .section-label {
     font-family: "JetBrains Mono", monospace;
     font-size: 0.68rem;
@@ -220,53 +168,15 @@
     line-height: 1.7;
   }
 
-  .gallery-section {
-    display: grid;
-    grid-template-columns: 190px 1fr;
-    gap: 1.4rem;
-    padding: 1.4rem 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .gallery-section:last-child { border-bottom: none; }
-  .gallery-title {
-    font-family: "Source Serif 4", serif;
-    font-size: 1.15rem;
-    font-weight: 600;
-  }
-  .gallery-desc {
-    font-size: 0.82rem;
-    color: var(--muted);
-    line-height: 1.7;
-    margin-top: 0.4rem;
-  }
-  .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-  }
-  .gallery-grid .photo-tile {
-    aspect-ratio: 4 / 3;
-  }
-
   @media (max-width: 820px) {
     header { padding: 1rem 1.2rem; flex-wrap: wrap; gap: 0.8rem; }
     .site-sub { border-left: none; padding-left: 0; flex-basis: 100%; }
     .nav-tabs { padding: 0 1.2rem; overflow-x: auto; }
     .nav-tab { flex: 0 0 auto; }
     main { padding: 1.4rem 1rem 3rem; }
-    .hero { grid-template-columns: 1fr; }
-    .photo-stack { min-height: 0; }
     .about-grid { grid-template-columns: 1fr; }
     .about-item { border-right: none; border-bottom: 1px solid var(--border); }
     .about-item:last-child { border-bottom: none; }
-    .gallery-section { grid-template-columns: 1fr; gap: 0.8rem; }
-    .gallery-grid { grid-template-columns: 1fr 1fr; }
-  }
-
-  @media (max-width: 480px) {
-    .photo-stack { grid-template-columns: 1fr; }
-    .lead-photo { grid-column: span 1; }
-    .gallery-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -299,28 +209,6 @@
         <a href="/poster">看海报</a>
       </div>
     </div>
-
-    <div class="photo-stack">
-      {% set lead = hero_photos[0] if hero_photos else none %}
-      {% if lead %}
-      <div class="photo-tile lead-photo">
-        <img src="{{ lead.url }}" alt="{{ lead.alt }}">
-        <span class="photo-label">{{ lead.label }}</span>
-      </div>
-      {% else %}
-      <div class="photo-tile lead-photo"><div class="placeholder">Coffee Break activity photo</div></div>
-      {% endif %}
-
-      {% for photo in hero_photos[1:3] %}
-      <div class="photo-tile">
-        <img src="{{ photo.url }}" alt="{{ photo.alt }}">
-        <span class="photo-label">{{ photo.label }}</span>
-      </div>
-      {% endfor %}
-      {% for label in ["Coffee", "Snacks"][:2 - hero_photos[1:3]|length] %}
-      <div class="photo-tile"><div class="placeholder">{{ label }} photo</div></div>
-      {% endfor %}
-    </div>
   </section>
 
   <div class="section-label">What Happens Here</div>
@@ -338,29 +226,6 @@
       <p>讨论之外也认真决定喝什么。网页投票会实时同步，方便统一下单。</p>
     </div>
   </section>
-
-  <div class="section-label">Photos</div>
-  {% for section in gallery_sections %}
-  <section class="gallery-section">
-    <div>
-      <div class="gallery-title">{{ section.title }}</div>
-      <div class="gallery-desc">{{ section.desc }}</div>
-    </div>
-    <div class="gallery-grid">
-      {% if section.photos %}
-        {% for photo in section.photos[:6] %}
-        <div class="photo-tile">
-          <img src="{{ photo.url }}" alt="{{ photo.alt }}">
-        </div>
-        {% endfor %}
-      {% else %}
-        {% for label in section.placeholders %}
-        <div class="photo-tile"><div class="placeholder">{{ label }}</div></div>
-        {% endfor %}
-      {% endif %}
-    </div>
-  </section>
-  {% endfor %}
 </main>
 </body>
 </html>
