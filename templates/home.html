@@ -78,18 +78,22 @@
   .nav-tab.active { color: var(--coffee); border-bottom-color: var(--coffee); }
 
   main {
-    max-width: 1200px;
+    max-width: 1320px;
     margin: 0 auto;
-    padding: 2.2rem 1.5rem 4rem;
+    padding: 2rem 2rem 4rem;
   }
 
   .hero {
-    max-width: 900px;
+    width: 100%;
   }
   .hero-copy {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+    column-gap: 4rem;
+    align-items: start;
     border-top: 2px solid var(--text);
     border-bottom: 1px solid var(--border);
-    padding: 1.8rem 0 1.6rem;
+    padding: 2rem 0 2rem;
   }
   .eyebrow {
     font-family: "JetBrains Mono", monospace;
@@ -99,20 +103,22 @@
     color: var(--accent2);
     margin-bottom: 1rem;
     font-weight: 500;
+    grid-column: 1 / -1;
   }
   h1 {
     font-family: "Source Serif 4", serif;
-    font-size: clamp(2.1rem, 5vw, 4.1rem);
+    font-size: clamp(2.3rem, 4.1vw, 4.6rem);
     line-height: 1.05;
     letter-spacing: 0;
     font-weight: 600;
-    margin-bottom: 1.2rem;
   }
   .intro {
-    max-width: 42rem;
     color: var(--muted);
-    font-size: 1.02rem;
-    line-height: 1.85;
+    font-size: 0.98rem;
+    line-height: 1.8;
+  }
+  .home-side {
+    padding-top: 0.25rem;
   }
   .quick-links {
     display: flex;
@@ -132,11 +138,11 @@
   }
   .quick-links a:hover { background: var(--accent); color: #fff; }
   .details {
-    margin-top: 1.4rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border);
+    margin-top: 1.2rem;
+    padding-top: 1.1rem;
+    border-top: 2px solid var(--text);
     color: var(--muted);
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     line-height: 1.8;
   }
   .details strong {
@@ -150,6 +156,9 @@
     .nav-tabs { padding: 0 1.2rem; overflow-x: auto; }
     .nav-tab { flex: 0 0 auto; }
     main { padding: 1.4rem 1rem 3rem; }
+    .hero-copy { display: block; padding: 1.5rem 0; }
+    h1 { margin-bottom: 1.1rem; }
+    .home-side { padding-top: 0; }
   }
 </style>
 </head>
@@ -172,23 +181,24 @@
     <div class="hero-copy">
       <div class="eyebrow">USTC Astro Coffee Break</div>
       <h1>Astro Papers, Coffee, and Research Sparks</h1>
-      <p class="intro">
-        Coffee Break 是 USTC Astro 每周一下午的轻量论文讨论时间。我们在
-        <a href="https://www.benty-fields.com/join_jc?invited_jc=2179" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(26,86,160,0.35);">BentyFields</a>
-        上创建了 Journal Club 群组 USTC Astro Coffee Break，欢迎大家提名最想讨论的 arXiv 文章；
-        每次主题由大家的提名决定。
-      </p>
-      <p class="intro" style="margin-top:0.9rem;">
-        也欢迎大家介绍自己的最新工作、想法或正在推进的问题。
-      </p>
-      <div class="quick-links">
-        <a href="/papers">看本周论文</a>
-        <a href="/coffee_vote">投咖啡</a>
-        <a href="/poster">看海报</a>
-      </div>
-      <div class="details">
-        <strong>时间</strong>：每周一下午<br>
-        <strong>地点</strong>：理化大楼 18 楼院士工作站 / WFST 远程观测室（物质科研楼 C1011）轮流安排
+      <div class="home-side">
+        <p class="intro">
+          Coffee Break 是 USTC Astro 每周一下午 3:00 的轻量论文讨论时间。我们在
+          <a href="https://www.benty-fields.com/join_jc?invited_jc=2179" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(26,86,160,0.35);">BentyFields</a>
+          上创建了 Journal Club 群组 USTC Astro Coffee Break，欢迎大家提名最想讨论的 arXiv 文章；每次主题由大家的提名决定。
+        </p>
+        <p class="intro" style="margin-top:0.9rem;">
+          也欢迎大家介绍自己的最新工作、想法或正在推进的问题。
+        </p>
+        <div class="quick-links">
+          <a href="/papers">看本周论文</a>
+          <a href="/coffee_vote">投咖啡</a>
+          <a href="/poster">看海报</a>
+        </div>
+        <div class="details">
+          <strong>时间</strong>：每周一下午 3:00<br>
+          <strong>地点</strong>：理化大楼 18 楼院士工作站 / WFST 远程观测室（物质科研楼 C1011）轮流安排
+        </div>
       </div>
     </div>
   </section>
