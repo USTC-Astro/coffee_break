@@ -258,33 +258,20 @@ function getStaticBase() {
 let images = [];
 let currentIdx = 0;
 
-function isPhoneViewport() {
-  return window.matchMedia && window.matchMedia('(max-width: 700px), (orientation: portrait)').matches;
-}
-
-function chooseImageUrl(item) {
-  return isPhoneViewport() && item.phone_url ? item.phone_url : item.url;
-}
-
-function choosePosterUrl(item) {
-  return isPhoneViewport() && item.phone_poster_url ? item.phone_poster_url : item.poster_url;
-}
-
 // ── Render ──
 function showSlide(idx) {
   if (!images.length) return;
   currentIdx = ((idx % images.length) + images.length) % images.length;
   const img = document.getElementById('slide-img');
-  img.src = chooseImageUrl(images[currentIdx]);
+  img.src = images[currentIdx].url;
   img.alt = images[currentIdx].name;
 
   // Counter
   document.getElementById('slide-counter').textContent =
     `${currentIdx + 1} / ${images.length}`;
   const openLink = document.getElementById('open-poster');
-  const posterUrl = choosePosterUrl(images[currentIdx]);
-  if (posterUrl) {
-    openLink.href = posterUrl;
+  if (images[currentIdx].poster_url) {
+    openLink.href = images[currentIdx].poster_url;
     openLink.style.display = 'inline-block';
   } else {
     openLink.style.display = 'none';
@@ -332,9 +319,7 @@ async function loadPosters() {
     images = (data.images || []).map(img => ({
       ...img,
       url: img.url && img.url.startsWith('data/') ? staticBase + img.url : img.url,
-      phone_url: img.phone_url && img.phone_url.startsWith('data/') ? staticBase + img.phone_url : img.phone_url,
-      poster_url: img.poster_url && img.poster_url.startsWith('data/') ? staticBase + img.poster_url : img.poster_url,
-      phone_poster_url: img.phone_poster_url && img.phone_poster_url.startsWith('data/') ? staticBase + img.phone_poster_url : img.phone_poster_url
+      poster_url: img.poster_url && img.poster_url.startsWith('data/') ? staticBase + img.poster_url : img.poster_url
     }));
 
     if (!images.length) {

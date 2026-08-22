@@ -30,9 +30,6 @@ def load_papers(json_path: Path | None = None) -> list[dict]:
     for paper in papers:
         paper["has_summary"] = (DATA_DIR / f"{paper['arxiv_id']}.md").exists()
         paper["has_poster"] = (DATA_DIR / "generated_posters" / paper["arxiv_id"] / "poster.html").exists()
-        paper["has_phone_poster"] = (
-            DATA_DIR / "generated_posters" / paper["arxiv_id"] / "phone" / "poster.html"
-        ).exists()
     return papers
 
 
@@ -154,11 +151,6 @@ def build_poster_manifests(data_root: Path) -> None:
             if match and (data_root / "generated_posters" / match.group(1) / "poster.html").exists():
                 item["arxiv_id"] = match.group(1)
                 item["poster_url"] = f"data/generated_posters/{match.group(1)}/poster.html"
-                phone_preview = p.with_name(f"{p.stem}_phone{p.suffix}")
-                if phone_preview.exists():
-                    item["phone_url"] = f"data/posters/{week_dir.name}/{phone_preview.name}"
-                if (data_root / "generated_posters" / match.group(1) / "phone" / "poster.html").exists():
-                    item["phone_poster_url"] = f"data/generated_posters/{match.group(1)}/phone/poster.html"
             images.append(item)
         manifest = {"images": images}
         (week_dir / "manifest.json").write_text(

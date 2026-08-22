@@ -342,9 +342,6 @@ MathJax = {
     <div class="paper-card {% if loop.index == 1 %}top1{% elif loop.index == 2 %}top2{% endif %}"
          {% if p.has_poster %}
          data-poster-url="data/generated_posters/{{ p.arxiv_id }}/poster.html"
-         {% if p.has_phone_poster %}
-         data-phone-poster-url="data/generated_posters/{{ p.arxiv_id }}/phone/poster.html"
-         {% endif %}
          {% endif %}
          onclick="openPaperCard(this, 'https://arxiv.org/abs/{{ p.arxiv_id }}')">
 
@@ -387,15 +384,10 @@ MathJax = {
 <script>
 const ADMIN_TOKEN = "ustc1958";
 
-function prefersPhonePoster() {
-  return window.matchMedia && window.matchMedia('(max-width: 700px), (orientation: portrait)').matches;
-}
-
 function openPaperCard(card, fallbackUrl) {
   const posterUrl = card.dataset.posterUrl;
   if (posterUrl) {
-    const phoneUrl = card.dataset.phonePosterUrl;
-    window.location = prefersPhonePoster() && phoneUrl ? phoneUrl : posterUrl;
+    window.location = posterUrl;
     return;
   }
   window.open(fallbackUrl, '_blank');
