@@ -170,16 +170,16 @@ def trim_words(value: Any, limit: int) -> str:
 
 def phone_content(content: dict[str, Any]) -> dict[str, Any]:
     compact = dict(content)
-    compact["headline"] = trim_words(content.get("headline"), 8)
-    compact["subtitle"] = trim_words(content.get("subtitle"), 12)
-    compact["paper_meta"] = trim_words(content.get("paper_meta"), 8)
-    compact["background"] = trim_words(content.get("background"), 22)
-    compact["knowledge_gap"] = trim_words(content.get("knowledge_gap"), 12)
-    compact["selling"] = trim_words(content.get("selling"), 24)
+    compact["headline"] = trim_words(content.get("headline"), 6)
+    compact["subtitle"] = trim_words(content.get("subtitle"), 9)
+    compact["paper_meta"] = trim_words(content.get("paper_meta"), 5)
+    compact["background"] = trim_words(content.get("background"), 16)
+    compact["knowledge_gap"] = trim_words(content.get("knowledge_gap"), 8)
+    compact["selling"] = trim_words(content.get("selling"), 17)
     key_results = content.get("key_results") if isinstance(content.get("key_results"), list) else []
-    compact["key_results"] = [trim_words(item, 10) for item in key_results[:3]]
+    compact["key_results"] = [trim_words(item, 8) for item in key_results[:3]]
     captions = content.get("figure_captions") if isinstance(content.get("figure_captions"), dict) else {}
-    compact["figure_captions"] = {str(k): trim_words(v, 10) for k, v in captions.items()}
+    compact["figure_captions"] = {str(k): trim_words(v, 8) for k, v in captions.items()}
     return compact
 
 
@@ -265,10 +265,16 @@ def edit_poster(
     doc = poster_path.read_text(encoding="utf-8")
     doc = apply_coffee_theme(doc)
     if phone:
-        doc = re.sub(r"--body-text-size:\s*[^;]+;", "--body-text-size: 28px;", doc)
-        doc = re.sub(r"--result-text-size:\s*[^;]+;", "--result-text-size: 26px;", doc)
-        doc = re.sub(r"--caption-size:\s*[^;]+;", "--caption-size: 20px;", doc)
-        doc = re.sub(r"font-size:\s*72px;", "font-size: 66px;", doc)
+        doc = re.sub(r"--body-text-size:\s*[^;]+;", "--body-text-size: 25px;", doc)
+        doc = re.sub(r"--result-text-size:\s*[^;]+;", "--result-text-size: 23px;", doc)
+        doc = re.sub(r"--caption-size:\s*[^;]+;", "--caption-size: 18px;", doc)
+        doc = re.sub(r"font-size:\s*72px;", "font-size: 56px;", doc)
+        doc = re.sub(r"font-size:\s*34px;", "font-size: 27px;", doc)
+        doc = re.sub(r"gap:\s*24px;", "gap: 16px;", doc, count=1)
+        doc = re.sub(r"padding:\s*50px 48px 52px;", "padding: 38px 44px 44px;", doc)
+        doc = re.sub(r"gap:\s*19px;\n      padding-bottom:\s*22px;", "gap: 12px;\n      padding-bottom: 14px;", doc)
+        doc = re.sub(r"gap:\s*18px;\n      min-width:", "gap: 10px;\n      min-width:", doc)
+        doc = re.sub(r"border-bottom:\s*8px solid", "border-bottom: 5px solid", doc)
         doc = doc.replace(".knowledge-gap {\n      margin-top:", ".knowledge-gap {\n      display: none;\n      margin-top:")
         content = phone_content(content)
 
