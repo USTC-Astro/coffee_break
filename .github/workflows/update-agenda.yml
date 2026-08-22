@@ -1,0 +1,56 @@
+name: Update agenda data
+
+on:
+  schedule:
+    - cron: "0 23 * * 0"
+  workflow_dispatch:
+    inputs:
+      no_summaries:
+        description: "Only refresh agenda JSON, skip paper summaries"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-agenda
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Refresh Benty agenda
+        env:
+          BENTY_PASSWORD: ${{ secrets.BENTY_PASSWORD }}
+        run: |
+          if [ -z "$BENTY_PASSWORD" ]; then
+            echo "BENTY_PASSWORD is not configured; skipping agenda refresh."
+            exit 0
+          fi
+          if [ "${{ github.event.inputs.no_summaries }}" = "true" ]; then
+            python fetch_benty.py --output-dir data --no-summaries
+          else
+            python fetch_benty.py --output-dir data
+          fi
+
+      - name: Rebuild static manifests
+        run: python build_static.py --output-dir site
+
+      - name: Commit updates
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update coffee-break agenda"
+          file_pattern: "data site"

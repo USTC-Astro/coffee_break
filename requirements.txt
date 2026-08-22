@@ -5,3 +5,4 @@ markdown
 paramiko
 requests
 uvicorn
+git+https://github.com/mfouesneau/arxiv_on_deck_2.git

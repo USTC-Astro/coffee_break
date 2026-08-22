@@ -228,6 +228,7 @@ function getWeekKey() {
 }
 
 function getStaticBase() {
+  if (window.STATIC_BASE) return window.STATIC_BASE;
   const meta = document.querySelector('meta[name="static-base"]');
   return meta ? meta.content : '';
 }
@@ -281,14 +282,16 @@ function prevSlide() {
 async function loadPosters() {
   const week = getWeekKey();
   const staticBase = getStaticBase();
-  const url = staticBase
-    ? staticBase + 'data/posters/' + week + '/manifest.json'
-    : '/api/posters/' + week;
-
   try {
+    const url = staticBase
+      ? staticBase + 'data/posters/' + week + '/manifest.json'
+      : '/api/posters/' + week;
     const r = await fetch(url);
     const data = await r.json();
-    images = data.images || [];
+    images = (data.images || []).map(img => ({
+      ...img,
+      url: img.url && img.url.startsWith('data/') ? staticBase + img.url : img.url
+    }));
 
     if (!images.length) {
       document.getElementById('empty-state').style.display = 'flex';

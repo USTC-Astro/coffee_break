@@ -17,7 +17,7 @@ USER           = os.environ.get("COFFEE_REMOTE_USER", "zbsu")
 PASSWORD       = os.environ.get("COFFEE_REMOTE_PASSWORD", "")
 BENTY_PASSWORD = os.environ.get("BENTY_PASSWORD", "")
 
-LOCAL_DIR      = Path("/Users/suzhenbo/Mylibrary/Projects/lib_python_external/arxiv_ustc")
+LOCAL_DIR      = Path(__file__).resolve().parent
 REMOTE_DIR     = "/home/zbsu/ustc_astro_coffee"
 CONDA_INIT     = "source /home/zbsu/miniconda3/etc/profile.d/conda.sh && conda activate fastapi"
 UVICORN        = "/home/zbsu/miniconda3/envs/fastapi/bin/uvicorn"
