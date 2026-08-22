@@ -131,7 +131,12 @@ def build_poster_manifests(data_root: Path) -> None:
         if not WEEK_RE.match(week_dir.name):
             continue
         files = sorted(
-            [p for p in week_dir.iterdir() if p.is_file() and p.suffix.lower() in POSTER_EXTS],
+            [
+                p for p in week_dir.iterdir()
+                if p.is_file()
+                and p.suffix.lower() in POSTER_EXTS
+                and not p.stem.endswith("_phone")
+            ],
             key=lambda p: p.name.lower(),
         )
         images = []
@@ -144,6 +149,11 @@ def build_poster_manifests(data_root: Path) -> None:
             if match and (data_root / "generated_posters" / match.group(1) / "poster.html").exists():
                 item["arxiv_id"] = match.group(1)
                 item["poster_url"] = f"data/generated_posters/{match.group(1)}/poster.html"
+                phone_preview = p.with_name(f"{p.stem}_phone{p.suffix}")
+                if phone_preview.exists():
+                    item["phone_url"] = f"data/posters/{week_dir.name}/{phone_preview.name}"
+                if (data_root / "generated_posters" / match.group(1) / "phone" / "poster.html").exists():
+                    item["phone_poster_url"] = f"data/generated_posters/{match.group(1)}/phone/poster.html"
             images.append(item)
         manifest = {"images": images}
         (week_dir / "manifest.json").write_text(

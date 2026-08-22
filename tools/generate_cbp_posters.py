@@ -160,6 +160,29 @@ def esc(value: Any) -> str:
     return html.escape(str(value or ""), quote=True)
 
 
+def trim_words(value: Any, limit: int) -> str:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    words = text.split()
+    if len(words) <= limit:
+        return text
+    return " ".join(words[:limit]).rstrip(".,;:") + "."
+
+
+def phone_content(content: dict[str, Any]) -> dict[str, Any]:
+    compact = dict(content)
+    compact["headline"] = trim_words(content.get("headline"), 8)
+    compact["subtitle"] = trim_words(content.get("subtitle"), 12)
+    compact["paper_meta"] = trim_words(content.get("paper_meta"), 8)
+    compact["background"] = trim_words(content.get("background"), 22)
+    compact["knowledge_gap"] = trim_words(content.get("knowledge_gap"), 12)
+    compact["selling"] = trim_words(content.get("selling"), 24)
+    key_results = content.get("key_results") if isinstance(content.get("key_results"), list) else []
+    compact["key_results"] = [trim_words(item, 10) for item in key_results[:3]]
+    captions = content.get("figure_captions") if isinstance(content.get("figure_captions"), dict) else {}
+    compact["figure_captions"] = {str(k): trim_words(v, 10) for k, v in captions.items()}
+    return compact
+
+
 def replace_once(text: str, pattern: str, replacement: str, *, flags: int = 0) -> str:
     new, count = re.subn(pattern, replacement, text, count=1, flags=flags)
     if count != 1:
@@ -211,13 +234,43 @@ def apply_coffee_theme(doc: str) -> str:
     }
     for old, new in replacements.items():
         doc = doc.replace(old, new)
+    variable_replacements = {
+        "--ink": "#171717",
+        "--muted": "#5f5a52",
+        "--paper": "#f8f4eb",
+        "--line": "#d8d0c2",
+        "--accent": "#155a8a",
+        "--accent-2": "#a94f2b",
+        "--title-font": 'Georgia, "Times New Roman", serif',
+        "--paper-font": '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+        "--text-font": '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+    }
+    for name, value in variable_replacements.items():
+        doc = re.sub(rf"{re.escape(name)}:\s*[^;]+;", f"{name}: {value};", doc)
+    doc = re.sub(r"--soft:\s*[^;]+;", "--soft: rgba(169, 79, 43, 0.08);", doc)
+    doc = re.sub(r"--warm:\s*[^;]+;", "--warm: rgba(169, 79, 43, 0.12);", doc)
     return doc
 
 
-def edit_poster(paper_dir: Path, arxiv_id: str, paper_title: str, content: dict[str, Any], figures: list[dict[str, str]]) -> None:
+def edit_poster(
+    paper_dir: Path,
+    arxiv_id: str,
+    paper_title: str,
+    content: dict[str, Any],
+    figures: list[dict[str, str]],
+    *,
+    phone: bool = False,
+) -> None:
     poster_path = paper_dir / "poster.html"
     doc = poster_path.read_text(encoding="utf-8")
     doc = apply_coffee_theme(doc)
+    if phone:
+        doc = re.sub(r"--body-text-size:\s*[^;]+;", "--body-text-size: 28px;", doc)
+        doc = re.sub(r"--result-text-size:\s*[^;]+;", "--result-text-size: 26px;", doc)
+        doc = re.sub(r"--caption-size:\s*[^;]+;", "--caption-size: 20px;", doc)
+        doc = re.sub(r"font-size:\s*72px;", "font-size: 66px;", doc)
+        doc = doc.replace(".knowledge-gap {\n      margin-top:", ".knowledge-gap {\n      display: none;\n      margin-top:")
+        content = phone_content(content)
 
     selected = coerce_indices(content.get("figure_indices"), len(figures))
     captions = content.get("figure_captions") if isinstance(content.get("figure_captions"), dict) else {}
@@ -239,17 +292,21 @@ def edit_poster(paper_dir: Path, arxiv_id: str, paper_title: str, content: dict[
     doc = replace_once(doc, r'<h1 class="headline" data-role="headline">.*?</h1>', f'<h1 class="headline" data-role="headline">{esc(content.get("headline"))}</h1>', flags=re.DOTALL)
     doc = replace_once(doc, r'<p class="subtitle">.*?</p>', f'<p class="subtitle">{esc(content.get("subtitle"))}</p>', flags=re.DOTALL)
     doc = replace_once(doc, r"<strong>.*?</strong>", f"<strong>{esc(content.get('paper_meta') or f'arXiv {arxiv_id}')}</strong>", flags=re.DOTALL)
-    doc = replace_once(doc, r'<section class="text-card text-card-background">\s*<h2>Background</h2>\s*<p>.*?</p>\s*<div class="knowledge-gap">.*?</div>\s*</section>', f'''<section class="text-card text-card-background">
-            <h2>Background</h2>
+    background_label = "Why it matters" if phone else "Background"
+    selling_label = "What this paper shows" if phone else "What this paper is selling"
+    results_label = "Remember" if phone else "Key results to remember"
+
+    doc = replace_once(doc, r'<section class="text-card text-card-background">\s*<h2>.*?</h2>\s*<p>.*?</p>\s*<div class="knowledge-gap">.*?</div>\s*</section>', f'''<section class="text-card text-card-background">
+            <h2>{background_label}</h2>
             <p>{esc(content.get("background"))}</p>
             <div class="knowledge-gap">{esc(content.get("knowledge_gap"))}</div>
           </section>''', flags=re.DOTALL)
-    doc = replace_once(doc, r'<section class="text-card text-card-selling">\s*<h2>What this paper is selling</h2>\s*<p>.*?</p>\s*</section>', f'''<section class="text-card text-card-selling">
-            <h2>What this paper is selling</h2>
+    doc = replace_once(doc, r'<section class="text-card text-card-selling">\s*<h2>.*?</h2>\s*<p>.*?</p>\s*</section>', f'''<section class="text-card text-card-selling">
+            <h2>{selling_label}</h2>
             <p>{esc(content.get("selling"))}</p>
           </section>''', flags=re.DOTALL)
-    doc = replace_once(doc, r'<section class="text-card text-card-results">\s*<h2>Key results to remember</h2>\s*<ul>.*?</ul>\s*</section>', f'''<section class="text-card text-card-results">
-            <h2>Key results to remember</h2>
+    doc = replace_once(doc, r'<section class="text-card text-card-results">\s*<h2>.*?</h2>\s*<ul>.*?</ul>\s*</section>', f'''<section class="text-card text-card-results">
+            <h2>{results_label}</h2>
             <ul>{key_results_html}</ul>
           </section>''', flags=re.DOTALL)
     doc = replace_once(doc, r'<section class="figure-panel" data-role="figure-panel"[^>]*>.*?</section>', f'''<section class="figure-panel" data-role="figure-panel" data-layout="hero-1">
@@ -258,7 +315,7 @@ def edit_poster(paper_dir: Path, arxiv_id: str, paper_title: str, content: dict[
     poster_path.write_text(doc, encoding="utf-8")
 
 
-def publish_outputs(paper_dir: Path, arxiv_id: str, rank: int) -> dict[str, str]:
+def publish_outputs(paper_dir: Path, phone_dir: Path, arxiv_id: str, rank: int) -> dict[str, str]:
     generated_root = DATA_DIR / "generated_posters" / arxiv_id
     if generated_root.exists():
         shutil.rmtree(generated_root)
@@ -267,15 +324,25 @@ def publish_outputs(paper_dir: Path, arxiv_id: str, rank: int) -> dict[str, str]
         src = paper_dir / name
         if src.exists():
             shutil.copy2(src, generated_root / name)
+    phone_root = generated_root / "phone"
+    shutil.copytree(phone_dir / "assets", phone_root / "assets")
+    for name in ["poster.html", "poster_preview.png", "poster.pdf", "layout.json"]:
+        src = phone_dir / name
+        if src.exists():
+            shutil.copy2(src, phone_root / name)
 
     carousel_dir = DATA_DIR / "posters" / "current"
     carousel_dir.mkdir(parents=True, exist_ok=True)
     preview_name = f"{rank:02d}_{arxiv_id}.png"
+    phone_preview_name = f"{rank:02d}_{arxiv_id}_phone.png"
     shutil.copy2(paper_dir / "poster_preview.png", carousel_dir / preview_name)
+    shutil.copy2(phone_dir / "poster_preview.png", carousel_dir / phone_preview_name)
     return {
         "name": preview_name,
         "url": f"data/posters/current/{preview_name}",
+        "phone_url": f"data/posters/current/{phone_preview_name}",
         "poster_url": f"data/generated_posters/{arxiv_id}/poster.html",
+        "phone_poster_url": f"data/generated_posters/{arxiv_id}/phone/poster.html",
         "arxiv_id": arxiv_id,
     }
 
@@ -289,7 +356,9 @@ def generate_one(paper: dict[str, Any], args: argparse.Namespace, api_key: str |
     raw = read_text(md_path)
     title = extract_title(raw)
     abstract = extract_abstract(raw)
-    paper_dir = prepare_paper(arxiv_id, args.workdir)
+    desktop_dir = prepare_paper(arxiv_id, str(Path(args.workdir) / "desktop"))
+    phone_dir = prepare_paper(arxiv_id, str(Path(args.workdir) / "phone"))
+    paper_dir = desktop_dir
     figures = json.loads((paper_dir / "figures.json").read_text(encoding="utf-8"))
     if len(figures) < 1:
         print(f"skip {arxiv_id}: no figures", file=sys.stderr)
@@ -305,7 +374,13 @@ def generate_one(paper: dict[str, Any], args: argparse.Namespace, api_key: str |
     edit_poster(paper_dir, arxiv_id, title, content, figures)
     run(CBP_CMD + ["check", str(paper_dir / "poster.html"), "--json-out", str(paper_dir / "layout.json")])
     run(CBP_CMD + ["render", str(paper_dir / "poster.html"), "--png", "--pdf"])
-    return publish_outputs(paper_dir, arxiv_id, rank)
+
+    phone_figure_count = min(2, max(1, len(figures)))
+    run(CBP_CMD + ["scaffold", str(phone_dir), "--format", "phone", "--figure-count", str(phone_figure_count), "--overwrite"])
+    edit_poster(phone_dir, arxiv_id, title, content, figures, phone=True)
+    run(CBP_CMD + ["check", str(phone_dir / "poster.html"), "--format", "phone", "--json-out", str(phone_dir / "layout.json")])
+    run(CBP_CMD + ["render", str(phone_dir / "poster.html"), "--format", "phone", "--png", "--pdf"])
+    return publish_outputs(paper_dir, phone_dir, arxiv_id, rank)
 
 
 def main() -> None:

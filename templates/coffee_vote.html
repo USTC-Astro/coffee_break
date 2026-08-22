@@ -286,10 +286,16 @@
 
   @media (max-width: 700px) {
     header { padding: 1rem 1.2rem; }
-    .nav-tabs { padding: 0 1.2rem; }
+    .nav-tabs { padding: 0 1.2rem; overflow-x: auto; }
+    .nav-tab { flex: 0 0 auto; }
     main { padding: 1.2rem 1rem 3rem; }
     .layout { grid-template-columns: 1fr; }
     .drinks-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 430px) {
+    .drinks-grid { grid-template-columns: 1fr; }
+    .drink-btn { min-height: 44px; }
   }
 </style>
 </head>
@@ -382,13 +388,15 @@ function getDeviceId() {
 let selectedDrink = null;
 function renderDrinks(myVote) {
   const grid = document.getElementById('drinks-grid');
-  grid.innerHTML = DRINKS.map(d => `
-    <button class="drink-btn ${myVote === d ? 'selected' : ''}"
-            onclick="selectDrink('${d}', this)">
-      ${d}
-
-    </button>
-  `).join('');
+  grid.innerHTML = '';
+  DRINKS.forEach((drink) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'drink-btn' + (myVote === drink ? ' selected' : '');
+    btn.textContent = drink;
+    btn.addEventListener('click', () => selectDrink(drink, btn));
+    grid.appendChild(btn);
+  });
   if (myVote) selectedDrink = myVote;
 }
 
@@ -524,6 +532,7 @@ if (API_BASE) document.getElementById('vote-code-row').style.display = 'block';
 loadVoteCodeFromUrl();
 
 document.addEventListener('DOMContentLoaded', loadVotes);
+document.addEventListener('DOMContentLoaded', () => renderDrinks(null), {once: true});
 </script>
 </body>
 </html>

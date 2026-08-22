@@ -340,7 +340,11 @@ MathJax = {
   <div class="papers">
     {% for p in papers %}
     <div class="paper-card {% if loop.index == 1 %}top1{% elif loop.index == 2 %}top2{% endif %}"
-         onclick="window.{% if p.has_poster %}location='/data/generated_posters/{{ p.arxiv_id }}/poster.html'{% else %}open('https://arxiv.org/abs/{{ p.arxiv_id }}','_blank'){% endif %}">
+         {% if p.has_poster %}
+         data-poster-url="/data/generated_posters/{{ p.arxiv_id }}/poster.html"
+         data-phone-poster-url="/data/generated_posters/{{ p.arxiv_id }}/phone/poster.html"
+         {% endif %}
+         onclick="openPaperCard(this, 'https://arxiv.org/abs/{{ p.arxiv_id }}')">
 
       <div class="vote-badge">
         <div class="vote-num">{{ p.votes }}</div>
@@ -380,6 +384,20 @@ MathJax = {
 
 <script>
 const ADMIN_TOKEN = "ustc1958";
+
+function prefersPhonePoster() {
+  return window.matchMedia && window.matchMedia('(max-width: 700px), (orientation: portrait)').matches;
+}
+
+function openPaperCard(card, fallbackUrl) {
+  const posterUrl = card.dataset.posterUrl;
+  if (posterUrl) {
+    const phoneUrl = card.dataset.phonePosterUrl;
+    window.location = prefersPhonePoster() && phoneUrl ? phoneUrl : posterUrl;
+    return;
+  }
+  window.open(fallbackUrl, '_blank');
+}
 
 // 加载所有论文的评价汇总
 async function loadAllRatings() {

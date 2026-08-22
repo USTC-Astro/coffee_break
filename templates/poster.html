@@ -192,12 +192,21 @@
   /* ── Responsive ── */
   @media (max-width: 700px) {
     header { padding: 1rem 1.2rem; }
-    .nav-tabs { padding: 0 1.2rem; }
-    .slideshow-wrap { padding: 0 0.5rem; }
+    .nav-tabs { padding: 0 1.2rem; overflow-x: auto; }
+    .nav-tab { flex: 0 0 auto; }
+    .slideshow-wrap { padding: 0 0.75rem; justify-content: flex-start; }
+    .slideshow-stage { align-items: flex-start; padding-top: 0.75rem; }
     .arrow { width: 36px; height: 36px; font-size: 1rem; }
     .arrow-left  { left: 0; }
     .arrow-right { right: 0; }
-    .slide-img { max-height: 55vh; }
+    .slide-img {
+      width: min(100%, 430px);
+      max-height: calc(100svh - 185px);
+      aspect-ratio: 9 / 16;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .slideshow-bar { padding: 0.8rem 0 1rem; flex-wrap: wrap; }
   }
 </style>
 </head>
@@ -249,20 +258,33 @@ function getStaticBase() {
 let images = [];
 let currentIdx = 0;
 
+function isPhoneViewport() {
+  return window.matchMedia && window.matchMedia('(max-width: 700px), (orientation: portrait)').matches;
+}
+
+function chooseImageUrl(item) {
+  return isPhoneViewport() && item.phone_url ? item.phone_url : item.url;
+}
+
+function choosePosterUrl(item) {
+  return isPhoneViewport() && item.phone_poster_url ? item.phone_poster_url : item.poster_url;
+}
+
 // ── Render ──
 function showSlide(idx) {
   if (!images.length) return;
   currentIdx = ((idx % images.length) + images.length) % images.length;
   const img = document.getElementById('slide-img');
-  img.src = images[currentIdx].url;
+  img.src = chooseImageUrl(images[currentIdx]);
   img.alt = images[currentIdx].name;
 
   // Counter
   document.getElementById('slide-counter').textContent =
     `${currentIdx + 1} / ${images.length}`;
   const openLink = document.getElementById('open-poster');
-  if (images[currentIdx].poster_url) {
-    openLink.href = images[currentIdx].poster_url;
+  const posterUrl = choosePosterUrl(images[currentIdx]);
+  if (posterUrl) {
+    openLink.href = posterUrl;
     openLink.style.display = 'inline-block';
   } else {
     openLink.style.display = 'none';
@@ -310,7 +332,9 @@ async function loadPosters() {
     images = (data.images || []).map(img => ({
       ...img,
       url: img.url && img.url.startsWith('data/') ? staticBase + img.url : img.url,
-      poster_url: img.poster_url && img.poster_url.startsWith('data/') ? staticBase + img.poster_url : img.poster_url
+      phone_url: img.phone_url && img.phone_url.startsWith('data/') ? staticBase + img.phone_url : img.phone_url,
+      poster_url: img.poster_url && img.poster_url.startsWith('data/') ? staticBase + img.poster_url : img.poster_url,
+      phone_poster_url: img.phone_poster_url && img.phone_poster_url.startsWith('data/') ? staticBase + img.phone_poster_url : img.phone_poster_url
     }));
 
     if (!images.length) {
@@ -356,6 +380,7 @@ document.getElementById('slide-img').addEventListener('click', (e) => {
 });
 
 document.addEventListener('DOMContentLoaded', loadPosters);
+window.addEventListener('resize', () => showSlide(currentIdx));
 </script>
 </body>
 </html>
