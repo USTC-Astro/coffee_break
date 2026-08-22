@@ -223,13 +223,13 @@ async function request(path, options = {}, timeoutMs = 10000) {
 
 async function testConnection() {
   document.getElementById('connect-btn').disabled = true;
-  setStatus('连接中...');
-  const result = await request('/rest/v1/', {headers: headers()}, 10000);
+  setStatus('连接测试中...');
+  const result = await request('/rest/v1/' + TABLE + '?select=id&limit=1', {headers: headers()}, 10000);
   document.getElementById('connect-btn').disabled = false;
-  if (result.ok || result.status === 404 || result.status === 406) {
-    setStatus(`Supabase 可以访问。HTTP ${result.status}，耗时 ${result.ms} ms。`, 'ok');
+  if (result.ok) {
+    setStatus(`Supabase 表访问正常。HTTP ${result.status}，耗时 ${result.ms} ms。`, 'ok');
   } else {
-    setStatus(`Supabase 连接失败。HTTP ${result.status || '-'}，耗时 ${result.ms} ms，错误 ${result.error || result.text || 'unknown'}。`, 'bad');
+    setStatus(`Supabase 表访问失败。HTTP ${result.status || '-'}，耗时 ${result.ms} ms。\n${result.text || result.error || 'unknown'}`, 'bad');
   }
 }
 
