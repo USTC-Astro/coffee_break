@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Little Red Dots: Super-Eddington Engines, Not Massive Black Holes</title>
+  <title>Little Red Dots: Super-Eddington Engines, Not.</title>
   <script>
     window.MathJax = {
       tex: {
@@ -24,30 +24,24 @@
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
   <style>
     :root {
-      --canvas-w: 1920px;
-      --canvas-h: 1080px;
+      --canvas-w: 1080px;
+      --canvas-h: 1920px;
       --ink: #171717;
       --muted: #5f5a52;
       --paper: #f8f4eb;
-      --page-bg: #e9e2d7;
-      --surface: #fffdf8;
       --line: #d8d0c2;
-      --line-strong: #c8c2b5;
       --accent: #155a8a;
       --accent-2: #a94f2b;
-      --highlight: rgba(169, 79, 43, 0.08);
+      --soft: rgba(169, 79, 43, 0.08);
+      --warm: rgba(169, 79, 43, 0.12);
       --title-font: Georgia, "Times New Roman", serif;
       --paper-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       --text-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       --ui-font: "Gill Sans", "Gill Sans MT", Helvetica, Arial, sans-serif;
-      --header-h: 208px;
-      --body-gap: 28px;
-      --figure-gap: 22px;
-      --text-fr: 1.15fr;
-      --figure-fr: 1.55fr;
-      --caption-size: 21px;
+      --caption-size: 18px;
       --body-text-size: 25px;
-      --result-text-size: 22px;
+      --result-text-size: 23px;
+      --figure-gap: 18px;
     }
 
     * { box-sizing: border-box; }
@@ -79,11 +73,13 @@
       height: var(--canvas-h);
       margin: 0;
       overflow: hidden;
-      background: var(--paper);
+      background:
+        linear-gradient(180deg, rgba(34, 107, 120, 0.10), rgba(251, 251, 253, 0.94) 34%, rgba(123, 95, 48, 0.08) 100%),
+        var(--paper);
       display: grid;
-      grid-template-rows: var(--header-h) 1fr;
-      padding: 32px 42px 38px;
-      gap: 24px;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 16px;
+      padding: 38px 44px 44px;
       transform: scale(var(--preview-scale));
       transform-origin: top left;
       border: 1px solid var(--line-strong);
@@ -91,107 +87,85 @@
     }
 
     .header {
-      position: relative;
       display: grid;
-      grid-template-columns: minmax(0, 1.34fr) minmax(560px, 0.83fr);
-      gap: 24px;
-      align-items: start;
-      padding: 4px 6px 30px;
-    }
-
-    .header::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 8px;
-      height: 4px;
-      border-radius: 0;
-      background: var(--ink);
-      box-shadow: none;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 5px solid rgba(34, 107, 120, 0.18);
     }
 
     .title-block {
       display: grid;
-      gap: 12px;
+      gap: 10px;
       min-width: 0;
     }
 
     .headline {
       margin: 0;
       font-family: var(--title-font);
-      font-size: 60px;
-      line-height: 1.0;
-      font-weight: 700;
+      font-size: 56px;
+      line-height: 0.98;
+      font-weight: 760;
       text-wrap: balance;
     }
 
     .subtitle {
-      width: 100%;
-      max-width: none;
       margin: 0;
-      color: var(--muted);
-      font-size: 24px;
-      line-height: 1.14;
-      font-weight: 400;
+      color: rgba(22, 32, 42, 0.88);
+      font-size: 27px;
+      line-height: 1.16;
       font-style: italic;
-      font-family: var(--text-font);
+      font-weight: 400;
     }
 
     .meta {
-      justify-self: end;
-      width: 100%;
-      max-width: 660px;
-      padding-top: 4px;
-      font-size: 21px;
+      color: rgba(22, 32, 42, 0.78);
+      font-size: 24px;
       line-height: 1.18;
-      color: var(--muted);
-      font-family: var(--text-font);
     }
 
     .meta strong {
       display: block;
-      font-family: var(--paper-font);
       color: var(--ink);
-      font-size: 27px;
-      line-height: 1.08;
-      margin-bottom: 10px;
+      font-family: var(--paper-font);
+      font-size: 29px;
+      line-height: 1.12;
+      margin-bottom: 7px;
     }
 
     .meta-content {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 96px;
+      grid-template-columns: minmax(0, 1fr) 90px;
       gap: 14px;
       align-items: start;
     }
 
     .meta-source {
-      margin-bottom: 8px;
+      margin-bottom: 7px;
     }
 
     .meta-links {
       display: flex;
       flex-wrap: wrap;
       gap: 7px 12px;
-      font-size: 17px;
-      line-height: 1.1;
+      font-size: 22px;
+      line-height: 1.08;
     }
 
     .meta-link {
-      color: #163848;
+      color: var(--accent);
       text-decoration: none;
-      border-bottom: 1px solid rgba(22, 56, 72, 0.32);
+      border-bottom: 1px solid rgba(34, 107, 120, 0.34);
       overflow-wrap: anywhere;
     }
 
     .meta-qr {
       display: block;
-      width: 92px;
-      height: 92px;
+      width: 86px;
+      height: 86px;
       padding: 6px;
-      border: 1px solid var(--line-strong);
-      border-radius: 6px;
-      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.88);
     }
 
     .meta-qr svg {
@@ -201,139 +175,52 @@
     }
 
     .body {
-      display: grid;
-      grid-template-columns: minmax(0, var(--text-fr)) minmax(0, var(--figure-fr));
-      gap: var(--body-gap);
       min-height: 0;
-    }
-
-    .text-column {
-      min-height: 0;
-      overflow: hidden;
       display: grid;
-      grid-template-rows: auto auto 1fr;
-      gap: 18px;
-    }
-
-    .text-card {
-      background: transparent;
-      border: 0;
-      border-top: 2px solid var(--line);
-      border-radius: 0;
-      overflow: hidden;
-      box-shadow: 0 3px 10px rgba(72, 70, 96, 0.02);
-    }
-
-    .text-card h2 {
-      margin: 0;
-      padding: 14px 0 8px;
-      color: var(--accent);
-      font-family: var(--text-font);
-      font-size: 27px;
-      font-weight: 700;
-      line-height: 1.05;
-      text-transform: none;
-      letter-spacing: 0;
-      background: transparent;
-      border-bottom: 0;
-    }
-
-    .text-card-background h2 {
-      background: transparent;
-    }
-
-    .text-card-selling h2 {
-      background: transparent;
-    }
-
-    .text-card-results h2 {
-      background: transparent;
-    }
-
-    .text-card p,
-    .text-card li {
-      margin: 0;
-      font-size: var(--body-text-size);
-      line-height: 1.22;
-    }
-
-    .text-card p,
-    .text-card ul {
-      padding: 0 0 0;
-    }
-
-    .knowledge-gap {
-      margin: 14px 0 0;
-      padding: 13px 16px 14px;
-      border-radius: 6px;
-      background: var(--highlight);
-      border-left: 6px solid var(--accent-2);
-      font-family: var(--ui-font);
-      font-size: 19px;
-      line-height: 1.22;
-      font-weight: 600;
-      color: var(--ink);
-    }
-
-    .text-card ul {
-      margin: 0;
-      display: grid;
-      gap: 10px;
-      padding-left: 31px;
-      list-style-position: outside;
-    }
-
-    .text-card-results ul {
-      gap: 6px;
-      padding-top: 0;
-      padding-bottom: 0;
-    }
-
-    .text-card-results li {
-      font-size: var(--result-text-size);
-      line-height: 1.12;
-    }
-
-    .text-card strong,
-    .figure-card strong {
-      color: #163848;
-      font-weight: 600;
+      grid-template-rows: minmax(0, 1.34fr) minmax(0, 0.78fr);
+      gap: 24px;
     }
 
     .figure-panel {
       min-height: 0;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-auto-rows: minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1.1fr) minmax(0, 0.7fr) minmax(0, 0.7fr);
       gap: var(--figure-gap);
+    }
+
+    .figure-panel .figure-card:first-child {
+      grid-column: 1 / -1;
     }
 
     .figure-panel[data-layout="solo"] {
       grid-template-columns: minmax(0, 1fr);
       grid-template-rows: minmax(0, 1fr);
-      grid-auto-rows: unset;
+    }
+
+    .figure-panel[data-layout="solo"] .figure-card:first-child {
+      grid-column: auto;
     }
 
     .figure-panel[data-layout="solo"] .figure-card {
-      padding: 16px;
-      gap: 12px;
+      padding: 18px;
+      gap: 15px;
     }
 
     .figure-panel[data-layout="solo"] .figure-card figcaption {
-      max-height: 92px;
-      font-size: calc(var(--caption-size) + 2px);
+      max-height: 122px;
+      font-size: 25px;
       text-align: center;
     }
 
     .figure-panel[data-layout="hero-1"] {
-      grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
-      grid-auto-rows: unset;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1.28fr) minmax(0, 0.72fr);
     }
 
     .figure-panel[data-layout="hero-2"] {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-template-rows: minmax(0, 1.18fr) minmax(0, 0.82fr);
-      grid-auto-rows: unset;
+      grid-template-rows: minmax(0, 1.2fr) minmax(0, 0.8fr);
     }
 
     .figure-panel[data-layout="hero-2"] .figure-card:first-child {
@@ -343,14 +230,14 @@
     .figure-card {
       margin: 0;
       min-height: 0;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 6px;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.55);
       display: grid;
       grid-template-rows: minmax(0, 1fr) auto;
-      padding: 8px;
       gap: 8px;
-      box-shadow: 0 2px 8px rgba(72, 70, 96, 0.015);
+      padding: 12px;
+      overflow: hidden;
     }
 
     .figure-card img {
@@ -362,22 +249,93 @@
     }
 
     .figure-card figcaption {
-      padding-top: 2px;
+      color: rgba(89, 100, 115, 0.96);
       font-size: var(--caption-size);
-      line-height: 1.16;
-      color: var(--muted);
-      max-height: 78px;
+      line-height: 1.13;
+      max-height: 82px;
       overflow: hidden;
-      font-family: var(--text-font);
+    }
+
+    .figure-card strong,
+    .text-card strong {
+      color: var(--accent);
+      font-weight: 700;
     }
 
     .empty-figure {
       display: grid;
       place-items: center;
-      min-height: 220px;
+      min-height: 320px;
       border: 2px dashed var(--line);
       color: var(--muted);
-      font-size: 26px;
+      font-size: 30px;
+    }
+
+    .text-column {
+      min-height: 0;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: minmax(0, 0.95fr) minmax(0, 1fr) minmax(0, 1.12fr);
+      gap: 16px;
+    }
+
+    .text-card {
+      min-height: 0;
+      overflow: hidden;
+      border-left: 8px solid var(--accent);
+      padding: 17px 22px 18px;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .text-card:nth-child(2) {
+      border-left-color: var(--accent-2);
+      background: rgba(255, 255, 255, 0.46);
+    }
+
+    .text-card:nth-child(3) {
+      background: linear-gradient(90deg, var(--soft), var(--warm));
+    }
+
+    .text-card h2 {
+      margin: 0 0 9px;
+      color: rgba(22, 32, 42, 0.84);
+      font-family: var(--ui-font);
+      font-size: 25px;
+      line-height: 1.0;
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: 0;
+      background: transparent;
+      border-bottom: 0;
+    }
+
+    .text-card p,
+    .text-card li {
+      margin: 0;
+      font-size: var(--body-text-size);
+      line-height: 1.16;
+    }
+
+    .knowledge-gap {
+      display: none;
+      margin-top: 12px;
+      color: #23444b;
+      font-family: var(--ui-font);
+      font-size: 24px;
+      line-height: 1.16;
+      font-weight: 650;
+    }
+
+    .text-card ul {
+      margin: 0;
+      padding-left: 34px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .text-card-results li {
+      font-size: var(--result-text-size);
+      line-height: 1.14;
     }
 
     @media print {
@@ -395,11 +353,11 @@
     <main class="poster" data-role="poster">
       <header class="header" data-role="header">
         <div class="title-block">
-          <h1 class="headline" data-role="headline">Little Red Dots: Super-Eddington Engines, Not Massive Black Holes</h1>
-          <p class="subtitle">Stellar eruptions like Eta Carinae explain LRD spectra and masses.</p>
+          <h1 class="headline" data-role="headline">Little Red Dots: Super-Eddington Engines, Not.</h1>
+          <p class="subtitle">Stellar eruptions like Eta Carinae explain LRD spectra and.</p>
         </div>
         <div class="meta" data-role="meta">
-          <strong>arXiv:2606.30711, JWST LRDs, IIn SNe, Eta Carinae</strong>
+          <strong>arXiv:2606.30711, JWST LRDs, IIn SNe.</strong>
           <div class="meta-content">
   <div class="meta-text">
     <div class="meta-source">First author / year / source</div>
@@ -415,30 +373,30 @@
         </div>
       </header>
       <section class="body">
-        <aside class="text-column" data-role="text-column">
-          <section class="text-card text-card-background">
-            <h2>Background</h2>
-            <p>Little Red Dots are compact, red sources seen by JWST. Their spectra show broad Balmer lines and blackbody-like continua, puzzling astronomers.</p>
-            <div class="knowledge-gap">Their inferred black hole masses may be wrong, as the emission could arise from dense winds, not virial motion.</div>
-          </section>
-          <section class="text-card text-card-selling">
-            <h2>What this paper is selling</h2>
-            <p>This paper draws parallels with Type IIn supernovae and Eta Carinae&#x27;s Great Eruption. It proposes that LRDs are super-Eddington, intermediate-mass engines enshrouded in dense gas, explaining their observed features.</p>
-          </section>
-          <section class="text-card text-card-results">
-            <h2>Key results to remember</h2>
-            <ul><li>LRDs cluster at ~5000 K, like IIn SNe and Eta Carinae.</li><li>Wind physics mimics virial broad lines, overestimating black hole masses.</li><li>Engine mass constrained to &lt;1e5 solar masses, super-Eddington.</li></ul>
-          </section>
-        </aside>
         <section class="figure-panel" data-role="figure-panel" data-layout="hero-1">
           <figure class="figure-card" data-role="figure-card">
   <img src="assets/HRD_v3.png" alt="Figure 4">
-  <figcaption><strong>Fig. 4.</strong> LRDs, IIn SNe, and Eta Carinae share similar temperatures despite vast luminosity range.</figcaption>
+  <figcaption><strong>Fig. 4.</strong> LRDs, IIn SNe, and Eta Carinae share similar.</figcaption>
 </figure><figure class="figure-card" data-role="figure-card">
   <img src="assets/lineprofiles_v2.png" alt="Figure 1">
-  <figcaption><strong>Fig. 1.</strong> Striking similarity in H-alpha profiles: electron-scattered wings and P-Cygni absorption.</figcaption>
+  <figcaption><strong>Fig. 1.</strong> Striking similarity in H-alpha profiles: electron-scattered wings and.</figcaption>
 </figure>
         </section>
+        <aside class="text-column" data-role="text-column">
+          <section class="text-card text-card-background">
+            <h2>Why it matters</h2>
+            <p>Little Red Dots are compact, red sources seen by JWST. Their spectra show broad Balmer lines.</p>
+            <div class="knowledge-gap">Their inferred black hole masses may be wrong.</div>
+          </section>
+          <section class="text-card text-card-selling">
+            <h2>What this paper shows</h2>
+            <p>This paper draws parallels with Type IIn supernovae and Eta Carinae&#x27;s Great Eruption. It proposes that LRDs.</p>
+          </section>
+          <section class="text-card text-card-results">
+            <h2>Remember</h2>
+            <ul><li>LRDs cluster at ~5000 K, like IIn SNe.</li><li>Wind physics mimics virial broad lines, overestimating black.</li><li>Engine mass constrained to &lt;1e5 solar masses, super-Eddington.</li></ul>
+          </section>
+        </aside>
       </section>
     </main>
   </div>

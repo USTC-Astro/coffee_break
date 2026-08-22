@@ -3,7 +3,9 @@
     {
       "name": "01_2606.30711.png",
       "url": "data/posters/current/01_2606.30711.png",
+      "phone_url": "data/posters/current/01_2606.30711_phone.png",
       "poster_url": "data/generated_posters/2606.30711/poster.html",
+      "phone_poster_url": "data/generated_posters/2606.30711/phone/poster.html",
       "arxiv_id": "2606.30711"
     }
   ]
