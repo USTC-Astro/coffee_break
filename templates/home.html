@@ -169,7 +169,7 @@
   }
   .workflow {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.2rem;
     margin-top: 1rem;
   }
@@ -227,12 +227,12 @@
   <section class="hero">
     <div class="hero-copy">
       <div class="eyebrow">USTC Astro Coffee Break</div>
-      <h1>Astro Papers, Coffee, and Small Friday Sparks</h1>
+      <h1>Monday Astro Papers, Coffee, and Research Sparks</h1>
       <p class="intro">
-        Coffee Break 是 USTC Astro 的轻量论文讨论时间。本网站展示的论文 agenda 来自
+        Coffee Break 是 USTC Astro 每周一下午的轻量论文讨论时间。本网站展示的论文 agenda 来自
         <a href="https://www.benty-fields.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(26,86,160,0.35);">BentyFields</a>：
         大家需要先注册并登录 BentyFields，在那里提交想看的 arXiv 论文并投票。网站会定期同步当前 agenda，
-        再生成论文列表和 coffee-break poster。
+        再生成论文列表和 coffee-break poster。欢迎大家来参加，也特别鼓励介绍自己的最新工作、想法或正在推进的问题。
       </p>
       <div class="quick-links">
         <a href="/papers">看本周论文</a>
@@ -245,17 +245,24 @@
   <div class="section-label">How The Agenda Works</div>
   <section class="workflow">
     <div class="workflow-block">
-      <h2>1. Vote on BentyFields</h2>
+      <h2>1. Time and Place</h2>
+      <p>
+        Coffee Break 通常在每周一下午举行，地点在理化大楼 18 楼院士工作站和 WFST 远程观测室
+        （物质科研楼 C1011）之间轮流安排。
+      </p>
+    </div>
+    <div class="workflow-block">
+      <h2>2. Vote on BentyFields</h2>
       <p>
         论文候选和论文票数以 BentyFields 为准。请用自己的账号登录 BentyFields，
         添加 arXiv 论文并给想讨论的论文投票；这里的“论文”页面会同步票数较高的当前 agenda。
       </p>
     </div>
     <div class="workflow-block">
-      <h2>2. Discuss in Coffee Break</h2>
+      <h2>3. Discuss in Coffee Break</h2>
       <p>
         排在前面的论文会优先进入讨论。鼓励提交者主动介绍论文背景、核心图像和为什么值得大家关心；
-        网页上的 poster 只是帮助快速进入状态，真正的讨论还是靠人来点亮。
+        也欢迎大家介绍自己的工作进展、遇到的问题和希望听到反馈的想法。
       </p>
     </div>
   </section>
