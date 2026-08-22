@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import shutil
 from datetime import datetime
@@ -52,20 +51,14 @@ def page_prefix(path_from_site_root: str) -> str:
     return "./" if depth == 0 else "../" * depth
 
 
-def rewrite_html(html: str, path_from_site_root: str, coffee_api_base: str = "") -> str:
+def rewrite_html(html: str, path_from_site_root: str) -> str:
     prefix = page_prefix(path_from_site_root)
     static_css = (
         "<style>"
         ".btn-discussed,.link-discussed,.rating-dropdown,.thoughts-section{display:none!important}"
         "</style>"
     )
-    config_script = (
-        "<script>"
-        f"window.COFFEE_API_BASE = {json.dumps(coffee_api_base.rstrip('/'))};"
-        "</script>"
-    )
     html = html.replace("</head>", f"{static_css}\n</head>")
-    html = html.replace("</head>", f"{config_script}\n</head>")
     replacements = [
         (r'href="/"', f'href="{prefix}index.html"'),
         (r'href="/coffee_vote"', f'href="{prefix}coffee_vote/index.html"'),
@@ -106,10 +99,10 @@ def rewrite_html(html: str, path_from_site_root: str, coffee_api_base: str = "")
     return html
 
 
-def write_page(site_dir: Path, path_from_site_root: str, html: str, coffee_api_base: str = "") -> None:
+def write_page(site_dir: Path, path_from_site_root: str, html: str) -> None:
     out = site_dir / path_from_site_root
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(rewrite_html(html, path_from_site_root, coffee_api_base), encoding="utf-8")
+    out.write_text(rewrite_html(html, path_from_site_root), encoding="utf-8")
 
 
 def copy_static_data(site_dir: Path) -> None:
@@ -159,7 +152,7 @@ def build_poster_manifests(data_root: Path) -> None:
         )
 
 
-def render_site(site_dir: Path, coffee_api_base: str = "") -> None:
+def render_site(site_dir: Path) -> None:
     env = Environment(loader=FileSystemLoader(str(TMPL_DIR)), autoescape=False)
     hist_dir = DATA_DIR / "history"
     history_dates = sorted([p.stem for p in hist_dir.glob("*.json")], reverse=True) if hist_dir.exists() else []
@@ -170,7 +163,7 @@ def render_site(site_dir: Path, coffee_api_base: str = "") -> None:
         history_dates=history_dates,
         current_date=None,
     )
-    write_page(site_dir, "index.html", index_html, coffee_api_base)
+    write_page(site_dir, "index.html", index_html)
 
     for date in history_dates:
         hist_file = hist_dir / f"{date}.json"
@@ -180,7 +173,7 @@ def render_site(site_dir: Path, coffee_api_base: str = "") -> None:
             history_dates=history_dates,
             current_date=date,
         )
-        write_page(site_dir, f"history/{date}/index.html", history_html, coffee_api_base)
+        write_page(site_dir, f"history/{date}/index.html", history_html)
 
     current_papers = load_papers()
     all_papers_by_id = {p["arxiv_id"]: p for p in current_papers}
@@ -188,26 +181,21 @@ def render_site(site_dir: Path, coffee_api_base: str = "") -> None:
         for paper in load_papers(hist_file):
             all_papers_by_id.setdefault(paper["arxiv_id"], paper)
 
-    write_page(site_dir, "poster/index.html", (TMPL_DIR / "poster.html").read_text(encoding="utf-8"), coffee_api_base)
-    write_page(site_dir, "coffee_vote/index.html", (TMPL_DIR / "coffee_vote.html").read_text(encoding="utf-8"), coffee_api_base)
-    write_page(site_dir, "coffee_vote_test/index.html", (TMPL_DIR / "coffee_vote_test.html").read_text(encoding="utf-8"), coffee_api_base)
+    write_page(site_dir, "poster/index.html", (TMPL_DIR / "poster.html").read_text(encoding="utf-8"))
+    write_page(site_dir, "coffee_vote/index.html", (TMPL_DIR / "coffee_vote.html").read_text(encoding="utf-8"))
+    write_page(site_dir, "coffee_vote_test/index.html", (TMPL_DIR / "coffee_vote_test.html").read_text(encoding="utf-8"))
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build static GitHub Pages site")
     parser.add_argument("--output-dir", default="site", help="Output directory")
-    parser.add_argument(
-        "--coffee-api-base",
-        default=os.environ.get("COFFEE_API_BASE", ""),
-        help="Optional Worker API base URL for static coffee voting",
-    )
     args = parser.parse_args()
 
     site_dir = (BASE_DIR / args.output_dir).resolve()
     ensure_clean_dir(site_dir)
     copy_static_data(site_dir)
     build_poster_manifests(site_dir / "data")
-    render_site(site_dir, args.coffee_api_base)
+    render_site(site_dir)
     print(f"Static site written to {site_dir}")
 
 

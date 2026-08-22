@@ -65,8 +65,6 @@ jobs:
           python tools/generate_cbp_posters.py --all-current
 
       - name: Rebuild static manifests
-        env:
-          COFFEE_API_BASE: ${{ vars.COFFEE_API_BASE }}
         run: python build_static.py --output-dir site
 
       - name: Commit updates

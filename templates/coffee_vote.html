@@ -353,19 +353,22 @@ const DRINKS = [
   "羽衣轻体果蔬茶", "小黄油美式", "轻椰茉莉拿铁", "冰吸生椰拿铁","埃塞金烘美式","苦瓜轻体美式", "陨石拿铁"
 ];
 const TOP_DRINKS = []; // 不标记推荐
-const API_BASE = (window.COFFEE_API_BASE || '').replace(/\/$/, '');
+const SUPABASE_URL = 'https://nhogiteotdxwzfuwhpll.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_YsX1wgA9YBM-9HkDKgNMHw_2GUAZyxF';
 
-function apiUrl(path) {
-  return API_BASE + path;
-}
-
-async function fetchJson(path, options = {}, timeoutMs = 10000) {
+async function supabaseRpc(fnName, payload = {}, timeoutMs = 10000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetch(apiUrl(path), {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fnName}`, {
+      method: 'POST',
       cache: 'no-store',
-      ...options,
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
       signal: controller.signal,
     });
     let data = {};
@@ -375,7 +378,9 @@ async function fetchJson(path, options = {}, timeoutMs = 10000) {
       data = {};
     }
     if (!response.ok && !data.error) {
-      data.error = `HTTP ${response.status}`;
+      data.error = response.status === 404
+        ? 'Supabase backend is not initialized'
+        : data.message || `HTTP ${response.status}`;
     }
     return data;
   } catch (error) {
@@ -386,6 +391,23 @@ async function fetchJson(path, options = {}, timeoutMs = 10000) {
   } finally {
     clearTimeout(timer);
   }
+}
+
+function normalizeVotePayload(data) {
+  if (!data) return {};
+  if (data.error || data.message || data.code) return {};
+  if (data.votes) return data.votes;
+  return data;
+}
+
+function voteErrorMessage(error) {
+  if (error === 'Invalid vote code') return '本周口令不正确';
+  if (error === 'Request timeout') return '网络超时：请稍后再试';
+  if (error === 'Network error') return '网络连接失败：请换一个网络再试';
+  if (error === 'Supabase backend is not initialized') {
+    return 'Supabase 后端还没初始化：请先在 Supabase SQL Editor 运行 supabase/coffee_votes.sql';
+  }
+  return error || '操作失败';
 }
 
 function loadVoteCodeFromUrl() {
@@ -508,19 +530,18 @@ async function cancelVote() {
   btn.disabled = true;
   try {
     const week = getWeekKey();
-    const data = await fetchJson('/coffee_votes/' + week + '/cancel', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({device_id: getDeviceId()})
+    const data = await supabaseRpc('coffee_vote_cancel', {
+      p_week: week,
+      p_device_id: getDeviceId(),
     });
     if (data.ok) {
       selectedDrink = null;
       document.querySelectorAll('.drink-btn').forEach(b => b.classList.remove('selected'));
-      renderResults(data.votes);
+      renderResults(normalizeVotePayload(data));
       document.getElementById('my-vote-note').innerHTML = '';
       btn.style.display = 'none';
-    } else if (data.error) {
-      alert(data.error === 'Request timeout' ? '网络超时：请试试关闭 VPN 或换一个网络' : data.error);
+    } else if (data.error || data.message) {
+      alert(voteErrorMessage(data.error || data.message));
     }
   } finally {
     btn.textContent = '取消投票';
@@ -533,8 +554,11 @@ async function loadVotes(options = {}) {
   votesLoading = true;
   const week = getWeekKey();
   try {
-    const data = await fetchJson('/coffee_votes/' + week, {}, 8000);
-    const votes = data.votes || {};
+    const data = await supabaseRpc('coffee_vote_list', {p_week: week}, 8000);
+    if (data.error || data.message) {
+      throw new Error(data.error || data.message);
+    }
+    const votes = normalizeVotePayload(data);
     if (options.initial) {
       const myVote = votes[getDeviceId()]?.drink || null;
       renderDrinks(myVote);
@@ -556,7 +580,7 @@ function startVotePolling() {
   if (votePollTimer) clearInterval(votePollTimer);
   votePollTimer = setInterval(() => {
     if (!document.hidden) loadVotes();
-  }, 5000);
+  }, 2000);
 }
 
 async function submitVote() {
@@ -569,26 +593,21 @@ async function submitVote() {
   btn.disabled = true; btn.textContent = '提交中...';
   try {
     const week = getWeekKey();
-    const data = await fetchJson('/coffee_votes/' + week, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({drink: selectedDrink, name, device_id: getDeviceId(), code})
+    const data = await supabaseRpc('coffee_vote_submit', {
+      p_week: week,
+      p_device_id: getDeviceId(),
+      p_drink: selectedDrink,
+      p_name: name,
+      p_code: code,
     });
     if (data.ok) {
-      renderResults(data.votes);
+      renderResults(normalizeVotePayload(data));
       document.getElementById('my-vote-note').innerHTML =
         `✓ 已投票：<strong>${selectedDrink}</strong>`;
       document.getElementById('cancel-btn').style.display = 'block';
-      setTimeout(() => loadVotes(), 800);
-    } else if (data.error) {
-      const message = data.error === 'Invalid vote code'
-        ? '本周口令不正确'
-        : data.error === 'Request timeout'
-          ? '网络超时：请试试关闭 VPN 或换一个网络'
-          : data.error === 'Network error'
-            ? '网络连接失败：请试试关闭 VPN 或换一个网络'
-            : data.error;
-      alert(message);
+      loadVotes();
+    } else if (data.error || data.message) {
+      alert(voteErrorMessage(data.error || data.message));
     }
   } finally {
     btn.disabled = false; btn.textContent = '提交投票';
@@ -600,7 +619,7 @@ const savedName = localStorage.getItem('rating_author');
 if (savedName) document.getElementById('voter-name').value = savedName;
 const savedCode = localStorage.getItem('coffee_vote_code');
 if (savedCode) document.getElementById('vote-code').value = savedCode;
-if (API_BASE) document.getElementById('vote-code-row').style.display = 'block';
+document.getElementById('vote-code-row').style.display = 'block';
 loadVoteCodeFromUrl();
 
 document.addEventListener('DOMContentLoaded', () => loadVotes({initial: true}));

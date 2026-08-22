@@ -30,8 +30,6 @@ jobs:
           python -m pip install -r requirements-static.txt
 
       - name: Build static site
-        env:
-          COFFEE_API_BASE: ${{ vars.COFFEE_API_BASE }}
         run: python build_static.py --output-dir site
 
       - uses: actions/configure-pages@v5

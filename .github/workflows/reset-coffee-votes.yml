@@ -14,17 +14,18 @@ jobs:
     steps:
       - name: Archive and clear current coffee votes
         env:
-          COFFEE_API_BASE: ${{ vars.COFFEE_API_BASE }}
-          COFFEE_ADMIN_TOKEN: ${{ secrets.COFFEE_ADMIN_TOKEN }}
+          SUPABASE_URL: https://nhogiteotdxwzfuwhpll.supabase.co
+          SUPABASE_PUBLISHABLE_KEY: sb_publishable_YsX1wgA9YBM-9HkDKgNMHw_2GUAZyxF
+          SUPABASE_COFFEE_ADMIN_TOKEN: ${{ secrets.SUPABASE_COFFEE_ADMIN_TOKEN }}
         run: |
-          if [ -z "$COFFEE_API_BASE" ]; then
-            echo "COFFEE_API_BASE repository variable is not configured."
-            exit 1
-          fi
-          if [ -z "$COFFEE_ADMIN_TOKEN" ]; then
-            echo "COFFEE_ADMIN_TOKEN repository secret is not configured."
+          if [ -z "$SUPABASE_COFFEE_ADMIN_TOKEN" ]; then
+            echo "SUPABASE_COFFEE_ADMIN_TOKEN repository secret is not configured."
             exit 1
           fi
 
-          response="$(curl -fsS -X POST "${COFFEE_API_BASE%/}/admin/refresh_votes?token=${COFFEE_ADMIN_TOKEN}")"
+          response="$(curl -fsS -X POST "${SUPABASE_URL%/}/rest/v1/rpc/coffee_vote_clear_current" \
+            -H "apikey: ${SUPABASE_PUBLISHABLE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_PUBLISHABLE_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{\"p_token\":\"${SUPABASE_COFFEE_ADMIN_TOKEN}\"}")"
           echo "$response"
