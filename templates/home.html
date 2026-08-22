@@ -84,8 +84,7 @@
   }
 
   .hero {
-    max-width: 920px;
-    margin-bottom: 2.4rem;
+    max-width: 900px;
   }
   .hero-copy {
     border-top: 2px solid var(--text);
@@ -103,8 +102,8 @@
   }
   h1 {
     font-family: "Source Serif 4", serif;
-    font-size: clamp(2.3rem, 6vw, 5.2rem);
-    line-height: 0.98;
+    font-size: clamp(2.1rem, 5vw, 4.1rem);
+    line-height: 1.05;
     letter-spacing: 0;
     font-weight: 600;
     margin-bottom: 1.2rem;
@@ -132,69 +131,18 @@
     transition: all 0.15s;
   }
   .quick-links a:hover { background: var(--accent); color: #fff; }
-
-  .section-label {
-    font-family: "JetBrains Mono", monospace;
-    font-size: 0.68rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 2.2rem 0 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .about-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    border: 1px solid var(--border);
-    background: var(--surface);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  .about-item {
-    padding: 1.1rem 1.2rem;
-    border-right: 1px solid var(--border);
-  }
-  .about-item:last-child { border-right: none; }
-  .about-item h2 {
-    font-family: "Source Serif 4", serif;
-    font-size: 1.05rem;
-    font-weight: 600;
-    margin-bottom: 0.45rem;
-  }
-  .about-item p {
-    color: var(--muted);
-    font-size: 0.86rem;
-    line-height: 1.7;
-  }
-  .workflow {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.2rem;
-    margin-top: 1rem;
-  }
-  .workflow-block {
-    border-top: 1px solid var(--border);
+  .details {
+    margin-top: 1.4rem;
     padding-top: 1rem;
-  }
-  .workflow-block h2 {
-    font-family: "Source Serif 4", serif;
-    font-size: 1.15rem;
-    font-weight: 600;
-    margin-bottom: 0.55rem;
-  }
-  .workflow-block p {
+    border-top: 1px solid var(--border);
     color: var(--muted);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     line-height: 1.8;
-    max-width: 34rem;
   }
-  .workflow-block a {
-    color: var(--accent);
-    text-decoration: none;
-    border-bottom: 1px solid rgba(26,86,160,0.35);
+  .details strong {
+    color: var(--text);
+    font-weight: 500;
   }
-  .workflow-block a:hover { border-bottom-color: var(--accent); }
 
   @media (max-width: 820px) {
     header { padding: 1rem 1.2rem; flex-wrap: wrap; gap: 0.8rem; }
@@ -202,10 +150,6 @@
     .nav-tabs { padding: 0 1.2rem; overflow-x: auto; }
     .nav-tab { flex: 0 0 auto; }
     main { padding: 1.4rem 1rem 3rem; }
-    .about-grid { grid-template-columns: 1fr; }
-    .about-item { border-right: none; border-bottom: 1px solid var(--border); }
-    .about-item:last-child { border-bottom: none; }
-    .workflow { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -218,9 +162,9 @@
 
 <div class="nav-tabs">
   <a class="nav-tab active" href="/">HOME</a>
-  <a class="nav-tab" href="/papers">📄 论文</a>
-  <a class="nav-tab" href="/coffee_vote">☕ 咖啡投票</a>
-  <a class="nav-tab" href="/poster">🖼 海报</a>
+  <a class="nav-tab" href="/papers">论文</a>
+  <a class="nav-tab" href="/coffee_vote">咖啡投票</a>
+  <a class="nav-tab" href="/poster">海报</a>
 </div>
 
 <main>
@@ -229,57 +173,23 @@
       <div class="eyebrow">USTC Astro Coffee Break</div>
       <h1>Astro Papers, Coffee, and Research Sparks</h1>
       <p class="intro">
-        Coffee Break 是 USTC Astro 每周一下午的轻量论文讨论时间。为了更好地组织讨论，我们在
+        Coffee Break 是 USTC Astro 每周一下午的轻量论文讨论时间。我们在
         <a href="https://www.benty-fields.com/join_jc?invited_jc=2179" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(26,86,160,0.35);">BentyFields</a>
-        上创建了 Journal Club 群组 USTC Astro Coffee Break。欢迎大家去上面提名最想讨论、最感兴趣的 arXiv 文章；
-        每次 Coffee Break 的主题将由大家的提名来决定。也特别鼓励大家介绍自己的最新工作、想法或正在推进的问题。
+        上创建了 Journal Club 群组 USTC Astro Coffee Break，欢迎大家提名最想讨论的 arXiv 文章；
+        每次主题由大家的提名决定。
+      </p>
+      <p class="intro" style="margin-top:0.9rem;">
+        也欢迎大家介绍自己的最新工作、想法或正在推进的问题。
       </p>
       <div class="quick-links">
         <a href="/papers">看本周论文</a>
         <a href="/coffee_vote">投咖啡</a>
         <a href="/poster">看海报</a>
       </div>
-    </div>
-  </section>
-
-  <div class="section-label">Meet, Nominate, Discuss</div>
-  <section class="workflow">
-    <div class="workflow-block">
-      <h2>1. Time and Place</h2>
-      <p>
-        Coffee Break 通常在每周一下午举行，地点在理化大楼 18 楼院士工作站和 WFST 远程观测室
-        （物质科研楼 C1011）之间轮流安排。
-      </p>
-    </div>
-    <div class="workflow-block">
-      <h2>2. Nominate on BentyFields</h2>
-      <p>
-        请注册并登录 BentyFields，加入 USTC Astro Coffee Break 群组，然后提名（Vote）你最想讨论或最感兴趣的
-        arXiv 文章。这里的“论文”页面会同步大家提名出的当前投票结果。
-      </p>
-    </div>
-    <div class="workflow-block">
-      <h2>3. Discuss in Coffee Break</h2>
-      <p>
-        排在前面的论文会优先进入讨论。鼓励提交者主动介绍论文背景、核心图像和为什么值得大家关心；
-        也欢迎大家介绍自己的工作进展、遇到的问题和希望听到反馈的想法。
-      </p>
-    </div>
-  </section>
-
-  <div class="section-label">What Happens Here</div>
-  <section class="about-grid">
-    <div class="about-item">
-      <h2>Paper Picks</h2>
-      <p>大家在 BentyFields 提名想讨论的 arXiv 论文，用投票形成一个自然的讨论顺序。</p>
-    </div>
-    <div class="about-item">
-      <h2>Poster First</h2>
-      <p>重点论文会自动生成 coffee-break poster，方便快速进入问题、图像和结论。</p>
-    </div>
-    <div class="about-item">
-      <h2>Coffee Vote</h2>
-      <p>讨论之外也认真决定喝什么。网页投票会实时同步，方便统一下单。</p>
+      <div class="details">
+        <strong>时间</strong>：每周一下午<br>
+        <strong>地点</strong>：理化大楼 18 楼院士工作站 / WFST 远程观测室（物质科研楼 C1011）轮流安排
+      </div>
     </div>
   </section>
 </main>
