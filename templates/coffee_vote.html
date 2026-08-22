@@ -353,6 +353,17 @@ function apiUrl(path) {
   return API_BASE + path;
 }
 
+function loadVoteCodeFromUrl() {
+  const url = new URL(window.location.href);
+  const code = url.searchParams.get('code');
+  if (!code) return;
+  localStorage.setItem('coffee_vote_code', code);
+  const input = document.getElementById('vote-code');
+  if (input) input.value = code;
+  url.searchParams.delete('code');
+  window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
+}
+
 // 固定投票池，不自动清空。管理员访问 /refresh 清空并存档后开新一期。
 function getWeekKey() {
   return 'current';
@@ -510,6 +521,7 @@ if (savedName) document.getElementById('voter-name').value = savedName;
 const savedCode = localStorage.getItem('coffee_vote_code');
 if (savedCode) document.getElementById('vote-code').value = savedCode;
 if (API_BASE) document.getElementById('vote-code-row').style.display = 'block';
+loadVoteCodeFromUrl();
 
 document.addEventListener('DOMContentLoaded', loadVotes);
 </script>
