@@ -1,4 +1,4 @@
-# USTC Astro Coffee — 2026-08-22
+# USTC Astro Coffee — 2026-08-23
 
 Benty-Fields Journal Club 当前 agenda，投票前 1 篇
 
