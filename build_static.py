@@ -108,6 +108,27 @@ def write_page(site_dir: Path, path_from_site_root: str, html: str) -> None:
     out.write_text(rewrite_html(html, path_from_site_root), encoding="utf-8")
 
 
+def write_redirect(site_dir: Path, path_from_site_root: str, target: str) -> None:
+    out = site_dir / path_from_site_root
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(
+        f"""<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="refresh" content="0; url={target}">
+<title>前往咖啡点单</title>
+<script>window.location.replace("{target}");</script>
+</head>
+<body>
+<p><a href="{target}">前往咖啡点单页面</a></p>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+
 def copy_static_data(site_dir: Path) -> None:
     dst = site_dir / "data"
     if dst.exists():
@@ -190,6 +211,8 @@ def render_site(site_dir: Path) -> None:
     write_page(site_dir, "poster/index.html", (TMPL_DIR / "poster.html").read_text(encoding="utf-8"))
     write_page(site_dir, "coffee_order/index.html", (TMPL_DIR / "coffee_vote.html").read_text(encoding="utf-8"))
     write_page(site_dir, "coffee_order_test/index.html", (TMPL_DIR / "coffee_vote_test.html").read_text(encoding="utf-8"))
+    write_redirect(site_dir, "coffee_vote/index.html", "../coffee_order/index.html")
+    write_redirect(site_dir, "coffee_vote_test/index.html", "../coffee_order_test/index.html")
 
 
 def main() -> None:
