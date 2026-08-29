@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>USTC Astro Coffee 投票</title>
+<title>USTC Astro Coffee 点单</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -86,7 +86,7 @@
 
   .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
 
-  /* ── 投票区 ── */
+  /* ── 点单区 ── */
   .vote-section h2 {
     font-family: "Source Serif 4", serif;
     font-size: 1rem;
@@ -308,16 +308,16 @@
 <div class="nav-tabs">
   <a class="nav-tab" href="/">HOME</a>
   <a class="nav-tab" href="/papers">论文</a>
-  <a class="nav-tab active" href="/coffee_vote">咖啡投票</a>
+  <a class="nav-tab active" href="/coffee_vote">咖啡点单</a>
   <a class="nav-tab" href="/poster">海报</a>
 </div>
 
 <main>
-  <div class="page-title">本周咖啡投票</div>
+  <div class="page-title">本周咖啡点单</div>
   <!-- <div class="page-sub">每人每周可投一次，可更改</div> -->
 
   <div class="layout">
-    <!-- 投票 -->
+    <!-- 点单 -->
     <div class="vote-section">
       <h2>选择你的饮品</h2>
       <div class="name-row">
@@ -328,8 +328,8 @@
       </div>
       <div class="drinks-grid" id="drinks-grid"></div>
       <div style="display:flex;gap:0.5rem;margin-top:1rem;">
-        <button class="submit-btn" id="submit-btn" onclick="submitVote()" style="margin-top:0;flex:1;">提交投票</button>
-        <button class="cancel-btn" id="cancel-btn" onclick="cancelVote()" style="display:none;">取消投票</button>
+        <button class="submit-btn" id="submit-btn" onclick="submitVote()" style="margin-top:0;flex:1;">提交点单</button>
+        <button class="cancel-btn" id="cancel-btn" onclick="cancelVote()" style="display:none;">取消点单</button>
       </div>
       <div class="my-vote-note" id="my-vote-note"></div>
     </div>
@@ -422,7 +422,7 @@ function loadVoteCodeFromUrl() {
   window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
 }
 
-// 固定投票池，不自动清空。管理员访问 /refresh 清空并存档后开新一期。
+// 固定点单池，不自动清空。管理员访问 /refresh 清空并存档后开新一期。
 function getWeekKey() {
   return 'current';
 }
@@ -492,7 +492,7 @@ function renderResults(votes) {
   const total = document.getElementById('total-votes');
   const entries = Object.entries(votes);
   if (!entries.length) {
-    list.innerHTML = '<div class="empty-result">本周暂无投票</div>';
+    list.innerHTML = '<div class="empty-result">本周暂无点单</div>';
     total.textContent = '';
     return;
   }
@@ -523,9 +523,9 @@ function renderResults(votes) {
   `).join('');
 }
 
-// 加载投票数据
+// 加载点单数据
 async function cancelVote() {
-  if (!confirm('确认取消本周投票？')) return;
+  if (!confirm('确认取消本周点单？')) return;
   const btn = document.getElementById('cancel-btn');
   btn.textContent = '取消中...';
   btn.disabled = true;
@@ -545,7 +545,7 @@ async function cancelVote() {
       alert(voteErrorMessage(data.error || data.message));
     }
   } finally {
-    btn.textContent = '取消投票';
+    btn.textContent = '取消点单';
     btn.disabled = false;
   }
 }
@@ -570,7 +570,7 @@ async function loadVotes(options = {}) {
     if (options.initial) {
       renderDrinks(null);
       document.getElementById('results-list').innerHTML =
-        '<div class="empty-result">投票结果暂时加载失败</div>';
+        '<div class="empty-result">点单结果暂时加载失败</div>';
     }
   } finally {
     votesLoading = false;
@@ -604,14 +604,14 @@ async function submitVote() {
     if (data.ok) {
       renderResults(normalizeVotePayload(data));
       document.getElementById('my-vote-note').innerHTML =
-        `✓ 已投票：<strong>${selectedDrink}</strong>`;
+        `✓ 已点单：<strong>${selectedDrink}</strong>`;
       document.getElementById('cancel-btn').style.display = 'block';
       loadVotes();
     } else if (data.error || data.message) {
       alert(voteErrorMessage(data.error || data.message));
     }
   } finally {
-    btn.disabled = false; btn.textContent = '提交投票';
+    btn.disabled = false; btn.textContent = '提交点单';
   }
 }
 

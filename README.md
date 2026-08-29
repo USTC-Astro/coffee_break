@@ -77,10 +77,10 @@ The Worker implements:
 - `POST /coffee_votes/current/cancel`
 - `POST /admin/refresh_votes?token=...`
 
-Responses match the old FastAPI shape, so the same coffee vote page works in
+Responses match the old FastAPI shape, so the same coffee order page works in
 server mode and static GitHub Pages mode.
 
-The `Reset coffee votes` workflow archives and clears `current` votes on the
+The `Reset coffee orders` workflow archives and clears `current` orders on the
 same weekly schedule as the paper agenda update, and can also be run manually.
 Set the GitHub repository secret `COFFEE_ADMIN_TOKEN` to the same value as the
 Worker `ADMIN_TOKEN`.

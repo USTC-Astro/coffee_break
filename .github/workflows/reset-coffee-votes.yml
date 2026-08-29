@@ -1,4 +1,4 @@
-name: Reset coffee votes
+name: Reset coffee orders
 
 on:
   schedule:
@@ -12,7 +12,7 @@ jobs:
   reset:
     runs-on: ubuntu-latest
     steps:
-      - name: Archive and clear current coffee votes
+      - name: Archive and clear current coffee orders
         env:
           SUPABASE_URL: https://nhogiteotdxwzfuwhpll.supabase.co
           SUPABASE_PUBLISHABLE_KEY: sb_publishable_YsX1wgA9YBM-9HkDKgNMHw_2GUAZyxF
