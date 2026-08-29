@@ -62,12 +62,12 @@ def rewrite_html(html: str, path_from_site_root: str) -> str:
     replacements = [
         (r'href="/"', f'href="{prefix}index.html"'),
         (r'href="/papers"', f'href="{prefix}papers/index.html"'),
-        (r'href="/coffee_vote"', f'href="{prefix}coffee_vote/index.html"'),
-        (r'href="/coffee_vote_test"', f'href="{prefix}coffee_vote_test/index.html"'),
+        (r'href="/coffee_order"', f'href="{prefix}coffee_order/index.html"'),
+        (r'href="/coffee_order_test"', f'href="{prefix}coffee_order_test/index.html"'),
         (r'href="/poster"', f'href="{prefix}poster/index.html"'),
         (r"href='/papers'", f"href='{prefix}papers/index.html'"),
-        (r"href='/coffee_vote'", f"href='{prefix}coffee_vote/index.html'"),
-        (r"href='/coffee_vote_test'", f"href='{prefix}coffee_vote_test/index.html'"),
+        (r"href='/coffee_order'", f"href='{prefix}coffee_order/index.html'"),
+        (r"href='/coffee_order_test'", f"href='{prefix}coffee_order_test/index.html'"),
         (r"href='/poster'", f"href='{prefix}poster/index.html'"),
         (r"fetch('/ratings/' + arxivId)", "Promise.resolve({json: async () => ({ratings: {}})})"),
         (r"fetch('/thoughts/' + arxivId)", "Promise.resolve({json: async () => ({entries: []})})"),
@@ -188,8 +188,8 @@ def render_site(site_dir: Path) -> None:
             all_papers_by_id.setdefault(paper["arxiv_id"], paper)
 
     write_page(site_dir, "poster/index.html", (TMPL_DIR / "poster.html").read_text(encoding="utf-8"))
-    write_page(site_dir, "coffee_vote/index.html", (TMPL_DIR / "coffee_vote.html").read_text(encoding="utf-8"))
-    write_page(site_dir, "coffee_vote_test/index.html", (TMPL_DIR / "coffee_vote_test.html").read_text(encoding="utf-8"))
+    write_page(site_dir, "coffee_order/index.html", (TMPL_DIR / "coffee_vote.html").read_text(encoding="utf-8"))
+    write_page(site_dir, "coffee_order_test/index.html", (TMPL_DIR / "coffee_vote_test.html").read_text(encoding="utf-8"))
 
 
 def main() -> None:

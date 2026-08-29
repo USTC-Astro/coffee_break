@@ -155,9 +155,9 @@ def history_date(date: str):
 RATINGS = ["🔥 夯", "👑 顶级", "🧑‍💻 人上人", "😐 NPC", "💩 拉完了"]
 
 
-# ── 咖啡投票 ──────────────────────────────────────────────────────────────
-@app.get("/coffee_vote", response_class=HTMLResponse)
-def coffee_vote_page():
+# ── 咖啡点单 ──────────────────────────────────────────────────────────────
+@app.get("/coffee_order", response_class=HTMLResponse)
+def coffee_order_page():
     tmpl_file = TMPL_DIR / "coffee_vote.html"
     return tmpl_file.read_text(encoding="utf-8")
 
@@ -227,7 +227,7 @@ def cancel_coffee_vote(week: str, body: dict = {}):
 
 @app.get("/refresh")
 def refresh_coffee_votes(token: str = ""):
-    """隐藏入口：把当前投票存档到 archive/ 后清空，然后跳回投票页。需 token。"""
+    """隐藏入口：把当前点单存档到 archive/ 后清空，然后跳回点单页。需 token。"""
     if token != ADMIN_TOKEN:
         raise HTTPException(status_code=403, detail="Forbidden")
     import datetime as dt
@@ -246,7 +246,7 @@ def refresh_coffee_votes(token: str = ""):
             )
         votes_file.unlink()
 
-    return RedirectResponse(url="/coffee_vote", status_code=303)
+    return RedirectResponse(url="/coffee_order", status_code=303)
 
 
 # ── 海报轮播 ──────────────────────────────────────────────────────────────
