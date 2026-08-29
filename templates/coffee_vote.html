@@ -440,6 +440,7 @@ function getDeviceId() {
 let selectedDrink = null;
 let votesLoading = false;
 let votePollTimer = null;
+let nameEdited = false;
 
 function renderDrinks(myVote) {
   const grid = document.getElementById('drinks-grid');
@@ -470,9 +471,12 @@ function applyMyVoteState(votes, options = {}) {
   if (myVote) {
     note.innerHTML = `你本周已投：<strong>${myVote}</strong>（可重新选择后提交更改）`;
     cancelBtn.style.display = 'block';
-    const savedName = votes[myDeviceId]?.name || '';
-    if (savedName) document.getElementById('voter-name').value = savedName;
     if (options.updateDrinkSelection) {
+      const savedName = votes[myDeviceId]?.name || '';
+      const nameInput = document.getElementById('voter-name');
+      if (savedName && !nameEdited && document.activeElement !== nameInput) {
+        nameInput.value = savedName;
+      }
       selectedDrink = myVote;
       document.querySelectorAll('.drink-btn').forEach((btn) => {
         btn.classList.toggle('selected', btn.textContent === myVote);
@@ -618,14 +622,19 @@ async function submitVote() {
 // 恢复名字
 const savedName = localStorage.getItem('rating_author');
 if (savedName) document.getElementById('voter-name').value = savedName;
+document.getElementById('voter-name').addEventListener('input', () => {
+  nameEdited = true;
+});
 const savedCode = localStorage.getItem('coffee_vote_code');
 if (savedCode) document.getElementById('vote-code').value = savedCode;
 document.getElementById('vote-code-row').style.display = 'block';
 loadVoteCodeFromUrl();
 
-document.addEventListener('DOMContentLoaded', () => loadVotes({initial: true}));
-document.addEventListener('DOMContentLoaded', () => renderDrinks(null), {once: true});
-document.addEventListener('DOMContentLoaded', startVotePolling);
+document.addEventListener('DOMContentLoaded', () => {
+  renderDrinks(null);
+  loadVotes({initial: true});
+  startVotePolling();
+});
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) loadVotes();
 });
