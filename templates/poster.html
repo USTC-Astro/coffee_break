@@ -101,6 +101,7 @@
     border-radius: 6px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.10);
     overflow: hidden;
+    position: relative;
   }
 
   .poster-frame {
@@ -109,6 +110,34 @@
     border: 0;
     display: block;
     background: var(--surface);
+  }
+
+  .poster-frame.is-loading {
+    opacity: 0;
+  }
+
+  .poster-preview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: var(--surface);
+  }
+
+  .poster-loading {
+    position: absolute;
+    left: 50%;
+    bottom: 0.8rem;
+    transform: translateX(-50%);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: rgba(255,255,255,0.86);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.25rem 0.65rem;
   }
 
   .slide-img {
@@ -290,7 +319,16 @@ function showSlide(idx) {
   const current = images[currentIdx];
   const wrap = document.getElementById('poster-frame-wrap');
   if (current.poster_url) {
-    wrap.innerHTML = `<iframe class="poster-frame" src="${current.poster_url}" title="${current.name || 'poster'}"></iframe>`;
+    const preview = current.url
+      ? `<img class="poster-preview" src="${current.url}" alt="${current.name || 'poster preview'}">`
+      : '';
+    wrap.innerHTML = `${preview}<iframe class="poster-frame is-loading" src="${current.poster_url}" title="${current.name || 'poster'}"></iframe><div class="poster-loading">Loading HTML poster...</div>`;
+    const frame = wrap.querySelector('.poster-frame');
+    frame.addEventListener('load', () => {
+      frame.classList.remove('is-loading');
+      wrap.querySelector('.poster-preview')?.remove();
+      wrap.querySelector('.poster-loading')?.remove();
+    }, {once: true});
   } else {
     wrap.innerHTML = `<img class="slide-img" src="${current.url}" alt="${current.name || 'poster'}">`;
   }
