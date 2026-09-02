@@ -1,6 +1,6 @@
 -- Supabase backend for the production coffee vote page.
 -- Run this once in Supabase Dashboard -> SQL Editor.
--- Replace REPLACE_WITH_WEEKLY_CODE with the current vote code before running.
+-- Leave vote_code empty for open ordering, or set a value later to require a code.
 -- Replace REPLACE_WITH_CLEAR_TOKEN with a private admin token before running.
 
 create table if not exists public.coffee_votes (
@@ -19,12 +19,12 @@ create table if not exists public.coffee_vote_settings (
 );
 
 insert into public.coffee_vote_settings (key, value)
-values ('vote_code', 'REPLACE_WITH_WEEKLY_CODE')
+values ('vote_code', '')
 on conflict (key) do update set value = excluded.value;
 
 insert into public.coffee_vote_settings (key, value)
 values ('clear_token', 'REPLACE_WITH_CLEAR_TOKEN')
-on conflict (key) do update set value = excluded.value;
+on conflict (key) do nothing;
 
 alter table public.coffee_votes enable row level security;
 alter table public.coffee_vote_settings enable row level security;

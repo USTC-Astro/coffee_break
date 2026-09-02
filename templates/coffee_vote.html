@@ -113,22 +113,6 @@
     outline: none;
   }
   .name-row input:focus { border-color: var(--accent); }
-  .vote-code-row {
-    display: none;
-    margin-bottom: 1rem;
-  }
-  .vote-code-row input {
-    width: 100%;
-    font-family: "Inter", sans-serif;
-    font-size: 0.85rem;
-    padding: 0.5rem 0.8rem;
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    background: var(--surface);
-    color: var(--text);
-    outline: none;
-  }
-  .vote-code-row input:focus { border-color: var(--accent); }
 
   .drinks-grid {
     display: grid;
@@ -323,9 +307,6 @@
       <div class="name-row">
         <input type="text" id="voter-name" placeholder="备注（可选，默认 anomaly）" maxlength="20"/>
       </div>
-      <div class="vote-code-row" id="vote-code-row">
-        <input type="password" id="vote-code" placeholder="本周口令" maxlength="40"/>
-      </div>
       <div class="drinks-grid" id="drinks-grid"></div>
       <div style="display:flex;gap:0.5rem;margin-top:1rem;">
         <button class="submit-btn" id="submit-btn" onclick="submitVote()" style="margin-top:0;flex:1;">提交点单</button>
@@ -402,24 +383,13 @@ function normalizeVotePayload(data) {
 }
 
 function voteErrorMessage(error) {
-  if (error === 'Invalid vote code') return '本周口令不正确';
+  if (error === 'Invalid vote code') return '点单口令设置仍在生效，请联系组织者';
   if (error === 'Request timeout') return '网络超时：请稍后再试';
   if (error === 'Network error') return '网络连接失败：请换一个网络再试';
   if (error === 'Supabase backend is not initialized') {
     return 'Supabase 后端还没初始化：请先在 Supabase SQL Editor 运行 supabase/coffee_votes.sql';
   }
   return error || '操作失败';
-}
-
-function loadVoteCodeFromUrl() {
-  const url = new URL(window.location.href);
-  const code = url.searchParams.get('code');
-  if (!code) return;
-  localStorage.setItem('coffee_vote_code', code);
-  const input = document.getElementById('vote-code');
-  if (input) input.value = code;
-  url.searchParams.delete('code');
-  window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
 }
 
 // 固定点单池，不自动清空。管理员访问 /refresh 清空并存档后开新一期。
@@ -585,9 +555,7 @@ function startVotePolling() {
 async function submitVote() {
   if (!selectedDrink) { alert('请先选择一种饮品'); return; }
   const name = document.getElementById('voter-name').value.trim() || 'anomaly';
-  const code = document.getElementById('vote-code')?.value.trim() || '';
   localStorage.setItem('rating_author', name);
-  if (code) localStorage.setItem('coffee_vote_code', code);
   const btn = document.getElementById('submit-btn');
   btn.disabled = true; btn.textContent = '提交中...';
   try {
@@ -597,7 +565,7 @@ async function submitVote() {
       p_device_id: getDeviceId(),
       p_drink: selectedDrink,
       p_name: name,
-      p_code: code,
+      p_code: '',
     });
     if (data.ok) {
       renderResults(normalizeVotePayload(data));
@@ -616,10 +584,6 @@ async function submitVote() {
 // 恢复名字
 const savedName = localStorage.getItem('rating_author');
 if (savedName) document.getElementById('voter-name').value = savedName;
-const savedCode = localStorage.getItem('coffee_vote_code');
-if (savedCode) document.getElementById('vote-code').value = savedCode;
-document.getElementById('vote-code-row').style.display = 'block';
-loadVoteCodeFromUrl();
 
 document.addEventListener('DOMContentLoaded', () => {
   renderDrinks(null);
