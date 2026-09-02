@@ -70,22 +70,22 @@
   .nav-tab:hover { color: var(--text); }
   .nav-tab.active { color: var(--coffee); border-bottom-color: var(--coffee); }
 
-  /* ── Slideshow container ── */
+  /* ── Poster stage ── */
   .slideshow-wrap {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     position: relative;
-    padding: 0 3rem;
+    padding: 1.4rem 3rem 0;
     overflow: hidden;
   }
 
   .slideshow-stage {
     position: relative;
     width: 100%;
-    max-width: 1100px;
+    max-width: min(1600px, calc((100svh - 190px) * 16 / 9));
     flex: 1;
     display: flex;
     align-items: center;
@@ -93,14 +93,29 @@
     min-height: 0;
   }
 
-  .slide-img {
-    max-width: 100%;
-    max-height: 68vh;
-    object-fit: contain;
+  .poster-frame-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--surface);
+    border: 1px solid var(--border2);
     border-radius: 6px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.10);
-    transition: opacity 0.3s ease;
-    cursor: default;
+    overflow: hidden;
+  }
+
+  .poster-frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    background: var(--surface);
+  }
+
+  .slide-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
   }
 
   /* ── Nav arrows ── */
@@ -155,6 +170,16 @@
     transition: all 0.15s;
   }
   .open-poster:hover { background: var(--accent); color: #fff; }
+  .poster-select {
+    max-width: min(46vw, 520px);
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    padding: 0.35rem 0.6rem;
+  }
   .dot {
     width: 8px; height: 8px;
     border-radius: 50%;
@@ -194,19 +219,18 @@
     header { padding: 1rem 1.2rem; }
     .nav-tabs { padding: 0 1.2rem; overflow-x: auto; }
     .nav-tab { flex: 0 0 auto; }
-    .slideshow-wrap { padding: 0 0.75rem; justify-content: flex-start; }
-    .slideshow-stage { align-items: flex-start; padding-top: 0.75rem; }
-    .arrow { width: 36px; height: 36px; font-size: 1rem; }
-    .arrow-left  { left: 0; }
-    .arrow-right { right: 0; }
-    .slide-img {
-      width: min(100%, 430px);
-      max-height: calc(100svh - 185px);
-      aspect-ratio: 9 / 16;
-      object-fit: contain;
-      border-radius: 8px;
+    .slideshow-wrap { padding: 0.8rem 0.75rem 0; justify-content: flex-start; }
+    .slideshow-stage {
+      align-items: flex-start;
+      width: 100%;
+      max-width: 100%;
+      flex: 0 0 auto;
     }
+    .arrow { width: 36px; height: 36px; font-size: 1rem; }
+    .arrow-left  { left: 0.25rem; }
+    .arrow-right { right: 0.25rem; }
     .slideshow-bar { padding: 0.8rem 0 1rem; flex-wrap: wrap; }
+    .poster-select { max-width: 100%; width: 100%; order: 3; }
   }
 </style>
 </head>
@@ -232,11 +256,12 @@
 <div class="slideshow-wrap" id="slideshow-wrap" style="display:none;">
   <div class="slideshow-stage">
     <button class="arrow arrow-left"  id="arrow-left"  onclick="prevSlide()"  title="上一张 (←)">◀</button>
-    <img class="slide-img" id="slide-img" src="" alt="poster" />
+    <div class="poster-frame-wrap" id="poster-frame-wrap"></div>
     <button class="arrow arrow-right" id="arrow-right" onclick="nextSlide()" title="下一张 (→)">▶</button>
   </div>
   <div class="slideshow-bar">
     <span class="slide-counter" id="slide-counter"></span>
+    <select class="poster-select" id="poster-select" onchange="showSlide(Number(this.value))"></select>
     <div class="dots-wrap" id="dots-wrap"></div>
     <a class="open-poster" id="open-poster" href="#" target="_self">打开当前海报 →</a>
   </div>
@@ -262,16 +287,21 @@ let currentIdx = 0;
 function showSlide(idx) {
   if (!images.length) return;
   currentIdx = ((idx % images.length) + images.length) % images.length;
-  const img = document.getElementById('slide-img');
-  img.src = images[currentIdx].url;
-  img.alt = images[currentIdx].name;
+  const current = images[currentIdx];
+  const wrap = document.getElementById('poster-frame-wrap');
+  if (current.poster_url) {
+    wrap.innerHTML = `<iframe class="poster-frame" src="${current.poster_url}" title="${current.name || 'poster'}"></iframe>`;
+  } else {
+    wrap.innerHTML = `<img class="slide-img" src="${current.url}" alt="${current.name || 'poster'}">`;
+  }
 
   // Counter
   document.getElementById('slide-counter').textContent =
     `${currentIdx + 1} / ${images.length}`;
+  document.getElementById('poster-select').value = String(currentIdx);
   const openLink = document.getElementById('open-poster');
-  if (images[currentIdx].poster_url) {
-    openLink.href = images[currentIdx].poster_url;
+  if (current.poster_url) {
+    openLink.href = current.poster_url;
     openLink.style.display = 'inline-block';
   } else {
     openLink.style.display = 'none';
@@ -285,6 +315,15 @@ function showSlide(idx) {
   document.querySelectorAll('.dot').forEach((d, i) => {
     d.classList.toggle('active', i === currentIdx);
   });
+}
+
+function renderSelect() {
+  const select = document.getElementById('poster-select');
+  select.innerHTML = images.map((img, i) => {
+    const label = img.arxiv_id ? `arXiv:${img.arxiv_id}` : img.name || `Poster ${i + 1}`;
+    return `<option value="${i}">${label}</option>`;
+  }).join('');
+  select.style.display = images.length > 1 ? 'inline-block' : 'none';
 }
 
 function renderDots() {
@@ -330,6 +369,7 @@ async function loadPosters() {
 
     document.getElementById('empty-state').style.display = 'none';
     document.getElementById('slideshow-wrap').style.display = 'flex';
+    renderSelect();
     renderDots();
     showSlide(0);
   } catch (e) {
@@ -354,14 +394,6 @@ document.addEventListener('touchend', (e) => {
   if (Math.abs(dx) < 40) return;
   if (dx < 0) nextSlide();
   else        prevSlide();
-});
-
-// ── Click left/right half of image ──
-document.getElementById('slide-img').addEventListener('click', (e) => {
-  const rect = e.target.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  if (x < rect.width / 2) prevSlide();
-  else                     nextSlide();
 });
 
 document.addEventListener('DOMContentLoaded', loadPosters);
