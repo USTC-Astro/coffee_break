@@ -2,7 +2,8 @@ name: Update agenda data
 
 on:
   schedule:
-    - cron: "0 23 * * 0"
+    # 07:00 Friday in Asia/Shanghai; GitHub Actions cron uses UTC.
+    - cron: "0 23 * * 4"
   workflow_dispatch:
     inputs:
       no_summaries:
