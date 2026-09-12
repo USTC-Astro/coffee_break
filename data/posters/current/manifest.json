@@ -1,10 +1,28 @@
 {
   "images": [
     {
+      "name": "01_2608.10719.png",
+      "url": "data/posters/current/01_2608.10719.png",
+      "poster_url": "data/generated_posters/2608.10719/poster.html",
+      "arxiv_id": "2608.10719"
+    },
+    {
+      "name": "02_2608.28745.png",
+      "url": "data/posters/current/02_2608.28745.png",
+      "poster_url": "data/generated_posters/2608.28745/poster.html",
+      "arxiv_id": "2608.28745"
+    },
+    {
       "name": "03_2608.30459.png",
       "url": "data/posters/current/03_2608.30459.png",
       "poster_url": "data/generated_posters/2608.30459/poster.html",
       "arxiv_id": "2608.30459"
+    },
+    {
+      "name": "04_2606.30711.png",
+      "url": "data/posters/current/04_2606.30711.png",
+      "poster_url": "data/generated_posters/2606.30711/poster.html",
+      "arxiv_id": "2606.30711"
     }
   ]
 }

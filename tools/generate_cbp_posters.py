@@ -228,6 +228,7 @@ def apply_coffee_theme(doc: str) -> str:
         "--body-gap: 34px;": "--body-gap: 28px;",
         "--text-fr: 0.9fr;": "--text-fr: 1.15fr;",
         "--figure-fr: 1.85fr;": "--figure-fr: 1.55fr;",
+        "--caption-size: 21px;": "--caption-size: 19px;",
         "--result-text-size: 17px;": "--result-text-size: 22px;",
         "background: var(--paper);\n      color: var(--ink);": "background: var(--page-bg);\n      color: var(--ink);",
         "background:\n        linear-gradient(135deg, rgba(150, 146, 175, 0.12), transparent 38%),\n        radial-gradient(circle at 85% 6%, rgba(150, 146, 175, 0.08), transparent 22%),\n        linear-gradient(180deg, rgba(150, 146, 175, 0.14) 0%, rgba(150, 146, 175, 0.05) 58%, rgba(150, 146, 175, 0.12) 100%),\n        var(--paper);": "background: var(--paper);",
@@ -254,6 +255,7 @@ def apply_coffee_theme(doc: str) -> str:
         "background: transparent;\n      border: 2px solid rgba(150, 146, 175, 0.24);\n      border-radius: 18px;": "background: var(--surface);\n      border: 1px solid var(--line);\n      border-radius: 6px;",
         "padding: 12px;\n      gap: 8px;": "padding: 8px;\n      gap: 8px;",
         "color: rgba(76, 85, 100, 0.92);": "color: var(--muted);",
+        "line-height: 1.16;\n      color: var(--muted);\n      max-height: 78px;": "line-height: 1.12;\n      color: var(--muted);\n      max-height: 104px;",
     }
     for old, new in replacements.items():
         doc = doc.replace(old, new)
@@ -329,7 +331,7 @@ def edit_poster(
     poster_path.write_text(doc, encoding="utf-8")
 
 
-def publish_outputs(paper_dir: Path, arxiv_id: str, rank: int) -> dict[str, str]:
+def publish_outputs(paper_dir: Path, arxiv_id: str, rank: int, carousel_dir: Path | None) -> dict[str, str]:
     generated_root = DATA_DIR / "generated_posters" / arxiv_id
     if generated_root.exists():
         shutil.rmtree(generated_root)
@@ -339,10 +341,10 @@ def publish_outputs(paper_dir: Path, arxiv_id: str, rank: int) -> dict[str, str]
         if src.exists():
             shutil.copy2(src, generated_root / name)
 
-    carousel_dir = DATA_DIR / "posters" / "current"
-    carousel_dir.mkdir(parents=True, exist_ok=True)
     preview_name = f"{rank:02d}_{arxiv_id}.png"
-    shutil.copy2(paper_dir / "poster_preview.png", carousel_dir / preview_name)
+    if carousel_dir is not None:
+        carousel_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(paper_dir / "poster_preview.png", carousel_dir / preview_name)
     return {
         "name": preview_name,
         "url": f"data/posters/current/{preview_name}",
@@ -351,7 +353,13 @@ def publish_outputs(paper_dir: Path, arxiv_id: str, rank: int) -> dict[str, str]
     }
 
 
-def generate_one(paper: dict[str, Any], args: argparse.Namespace, api_key: str | None, rank: int) -> dict[str, str] | None:
+def generate_one(
+    paper: dict[str, Any],
+    args: argparse.Namespace,
+    api_key: str | None,
+    rank: int,
+    carousel_dir: Path | None,
+) -> dict[str, str] | None:
     arxiv_id = paper["arxiv_id"]
     md_path = DATA_DIR / f"{arxiv_id}.md"
     if not md_path.exists():
@@ -376,7 +384,7 @@ def generate_one(paper: dict[str, Any], args: argparse.Namespace, api_key: str |
     edit_poster(paper_dir, arxiv_id, title, content, figures)
     run(CBP_CMD + ["check", str(paper_dir / "poster.html"), "--json-out", str(paper_dir / "layout.json")])
     run(CBP_CMD + ["render", str(paper_dir / "poster.html"), "--png", "--pdf"])
-    return publish_outputs(paper_dir, arxiv_id, rank)
+    return publish_outputs(paper_dir, arxiv_id, rank, carousel_dir)
 
 
 def main() -> None:
@@ -397,7 +405,12 @@ def main() -> None:
         raise SystemExit("No papers to generate.")
 
     carousel_dir = DATA_DIR / "posters" / "current"
-    carousel_dir.mkdir(parents=True, exist_ok=True)
+    update_carousel = bool(args.all_current and not args.arxiv_id)
+    staging_carousel_dir = DATA_DIR / "posters" / "current_tmp" if update_carousel else None
+    if staging_carousel_dir is not None:
+        if staging_carousel_dir.exists():
+            shutil.rmtree(staging_carousel_dir)
+        staging_carousel_dir.mkdir(parents=True, exist_ok=True)
 
     api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
     if not api_key and not args.dry_run:
@@ -406,24 +419,30 @@ def main() -> None:
     manifest_items = []
     for rank, paper in enumerate(papers, start=1):
         try:
-            item = generate_one(paper, args, api_key, rank)
+            item = generate_one(paper, args, api_key, rank, staging_carousel_dir)
         except Exception as exc:
             print(f"warning: failed to generate poster for {paper.get('arxiv_id', 'unknown')}: {exc}", file=sys.stderr)
             continue
         if item:
             manifest_items.append(item)
 
-    if manifest_items:
-        keep = {item["name"] for item in manifest_items}
-        for old_preview in carousel_dir.glob("*.png"):
-            if old_preview.name not in keep:
-                old_preview.unlink()
+    if update_carousel and manifest_items and len(manifest_items) == len(papers):
+        if carousel_dir.exists():
+            shutil.rmtree(carousel_dir)
+        assert staging_carousel_dir is not None
+        staging_carousel_dir.rename(carousel_dir)
         (carousel_dir / "manifest.json").write_text(
             json.dumps({"images": manifest_items}, indent=2, ensure_ascii=False),
             encoding="utf-8",
         )
     else:
-        print("warning: no posters generated; keeping existing current poster manifest.", file=sys.stderr)
+        if staging_carousel_dir is not None and staging_carousel_dir.exists():
+            shutil.rmtree(staging_carousel_dir)
+        if update_carousel:
+            print(
+                f"warning: generated {len(manifest_items)} of {len(papers)} posters; keeping existing current poster manifest.",
+                file=sys.stderr,
+            )
     print(f"Generated {len(manifest_items)} poster(s).")
 
 
