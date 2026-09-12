@@ -1,6 +1,12 @@
 {
   "images": [
     {
+      "name": "03_2608.30459.png",
+      "url": "data/posters/current/03_2608.30459.png",
+      "poster_url": "data/generated_posters/2608.30459/poster.html",
+      "arxiv_id": "2608.30459"
+    },
+    {
       "name": "04_2606.30711.png",
       "url": "data/posters/current/04_2606.30711.png",
       "poster_url": "data/generated_posters/2606.30711/poster.html",
