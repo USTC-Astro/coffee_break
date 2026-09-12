@@ -39,6 +39,21 @@ def get_mtime() -> str:
     return datetime.fromtimestamp(json_file.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
 
 
+def load_site_info() -> dict:
+    info_file = DATA_DIR / "site_info.json"
+    defaults = {
+        "time": "每周五下午 4:00",
+        "venue": "理化大楼 18 楼院士工作站 / WFST 远程观测室（物质科研楼 C1011）轮流安排",
+    }
+    if not info_file.exists():
+        return defaults
+    try:
+        info = json.loads(info_file.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return defaults
+    return {**defaults, **{k: v for k, v in info.items() if isinstance(v, str) and v.strip()}}
+
+
 def ensure_clean_dir(path: Path) -> None:
     if path.exists():
         shutil.rmtree(path)
@@ -181,7 +196,7 @@ def render_site(site_dir: Path) -> None:
     hist_dir = DATA_DIR / "history"
     history_dates = sorted([p.stem for p in hist_dir.glob("*.json")], reverse=True) if hist_dir.exists() else []
 
-    home_html = env.get_template("home.html").render()
+    home_html = env.get_template("home.html").render(site_info=load_site_info())
     write_page(site_dir, "index.html", home_html)
 
     papers_html = env.get_template("papers.html").render(
