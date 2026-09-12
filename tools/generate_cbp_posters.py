@@ -317,6 +317,7 @@ def apply_coffee_theme(doc: str) -> str:
     doc = re.sub(r"--warm:\s*[^;]+;", "--warm: rgba(169, 79, 43, 0.12);", doc)
     doc = re.sub(r'(<a class="meta-link" href="[^"]+")>', r'\1 target="_blank" rel="noopener">', doc)
     doc = re.sub(r'(<a class="meta-qr" href="[^"]+")', r'\1 target="_blank" rel="noopener"', doc)
+    doc = re.sub(r'\s*<div class="meta-source">.*?</div>\s*', "\n", doc, flags=re.DOTALL)
     return doc
 
 
