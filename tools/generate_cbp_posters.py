@@ -206,8 +206,32 @@ def first_complete_sentence(value: Any, fallback: Any = "", max_words: int = 30)
     return trim_words(text, max_words)
 
 
+def clean_caption_for_display(value: Any) -> str:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    text = re.sub(r"cite[tp]?\s*(?:\[[^\]]*\])*\s*\{[^}]*\}", "", text)
+    text = re.sub(r"\\(?:cite[tp]?|ref|label)\s*(?:\[[^\]]*\])*\s*\{[^}]*\}", "", text)
+    text = re.sub(r"\\(?:rm|mathrm|textrm|text)\s*\{([^}$]+)\}?", r"\1", text)
+    text = re.sub(r"\\(?:bf|it|emph)\s*\{([^}]+)\}", r"\1", text)
+    text = re.sub(r"\\(?:bf|it)\s+", "", text)
+    text = re.sub(r"\\approx", "~", text)
+    text = re.sub(r"\\sim", "~", text)
+    text = re.sub(r"\\odot", "sun", text)
+    text = re.sub(r"\\pi", "pi", text)
+    text = re.sub(r"\\sigma", "sigma", text)
+    text = re.sub(r"\\lambda", "lambda", text)
+    text = re.sub(r"\\([A-Za-z]+)", r"\1", text)
+    text = re.sub(r"_\{([^}$]+)\}?", r"_\1", text)
+    text = re.sub(r"\^\{([^}$]+)\}?", r"^\1", text)
+    text = text.replace("$", "")
+    text = text.replace("{", "").replace("}", "")
+    text = re.sub(r"\s+([,.;:)])", r"\1", text)
+    text = re.sub(r"([(])\s+", r"\1", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
 def original_caption_lead(fig: dict[str, str], max_words: int = 34) -> str:
-    caption = re.sub(r"\s+", " ", str(fig.get("caption") or "")).strip()
+    caption = clean_caption_for_display(fig.get("caption") or "")
     caption = re.sub(r"^(?:fig|figure|fig\.?)\s*[:._-]?\s*[\w:-]*\s+", "", caption, flags=re.IGNORECASE)
     caption = re.sub(r"^(?:bf\s*)?([a-z])\s*,\s+", r"\1, ", caption, flags=re.IGNORECASE)
     lead = first_complete_sentence(caption, f"Figure {fig.get('number', '')}", max_words=max_words)
