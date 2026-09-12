@@ -127,7 +127,7 @@ Hard limits:
 - selling: 2 sentences maximum, 48 words maximum.
 - key_results: exactly 3 bullets, each 15 words maximum.
 - figure_indices: choose exactly 2 figure idx values. Pick only figures that carry the story.
-- figure_captions: each 18 words maximum and interpretive.
+- figure_captions: each one complete sentence, 24 words maximum, and interpretive.
 
 Return exactly this JSON schema:
 {{
@@ -191,6 +191,19 @@ def trim_words(value: Any, max_words: int) -> str:
     if len(words) <= max_words:
         return " ".join(words)
     return " ".join(words[:max_words]).rstrip(".,;:") + "..."
+
+
+def first_complete_sentence(value: Any, fallback: Any = "", max_words: int = 30) -> str:
+    """Prefer a complete first sentence over a mechanically truncated caption."""
+    text = re.sub(r"\s+", " ", str(value or fallback or "")).strip()
+    if not text:
+        return ""
+    match = re.search(r"(.+?[.!?])(?:\s|$)", text)
+    if match:
+        first = match.group(1).strip()
+        if len(first.split()) <= max_words:
+            return first
+    return trim_words(text, max_words)
 
 
 def replace_once(text: str, pattern: str, replacement: str, *, flags: int = 0) -> str:
@@ -278,7 +291,11 @@ def edit_poster(
     fig_html = []
     for idx in selected:
         fig = figures[idx]
-        caption = trim_words(captions.get(str(idx)) or fig.get("caption") or f"Figure {fig['number']}", 12)
+        caption = first_complete_sentence(
+            captions.get(str(idx)),
+            fig.get("caption") or f"Figure {fig['number']}",
+            max_words=30,
+        )
         fig_html.append(
             f'''<figure class="figure-card" data-role="figure-card">
   <img src="assets/{esc(fig["filename"])}" alt="Figure {esc(fig["number"])}">
