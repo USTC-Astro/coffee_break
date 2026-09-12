@@ -402,8 +402,7 @@
           <strong>arXiv:2608.30459 — Source-conditioned polychromatic PSFs for compact high-redshift nuclei</strong>
           <div class="meta-content">
   <div class="meta-text">
-    <div class="meta-source">First author / year / source</div>
-    <div class="meta-links">
+<div class="meta-links">
       <a class="meta-link" href="https://arxiv.org/abs/2608.30459" target="_blank" rel="noopener">arXiv:2608.30459</a>
       <a class="meta-link" href="https://doi.org/10.48550/arXiv.2608.30459" target="_blank" rel="noopener">doi:10.48550/arXiv.2608.30459</a>
     </div>
@@ -418,25 +417,25 @@
         <aside class="text-column" data-role="text-column">
           <section class="text-card text-card-background">
             <h2>Background</h2>
-            <p>Little red dots are compact early-Universe sources whose unresolved nuclei and possible hosts overlap in the same diffraction-limited image. Their structure is usually inferred by subtracting a point-spread function modelled from nearby field stars.</p>
-            <div class="knowledge-gap">That stellar PSF assumes the target&#x27;s spectrum matches the stars, an assumption never tested for spectrally distinct compact sources.</div>
+            <p>Compact high-redshift sources are modelled by subtracting a point-spread function built from nearby field stars. Inferred sizes, luminosities and masses all rest on that subtraction being correct.</p>
+            <div class="knowledge-gap">Field-star PSFs assume the target&#x27;s spectrum matches the stars, which little red dots violate.</div>
           </section>
           <section class="text-card text-card-selling">
             <h2>What this paper is selling</h2>
-            <p>The authors derive why broad-band stellar PSFs systematically misassign flux for sources with different spectral slopes, then demonstrate a source-conditioned polychromatic correction. The effect is large enough to change inferred sizes, luminosities and masses of little red dots.</p>
+            <p>The authors derive why broad-band stellar PSFs systematically misassign light for spectrally distinct compact sources. They demonstrate a correction that removes spurious extended components from little red dots and similar nuclei.</p>
           </section>
           <section class="text-card text-card-results">
             <h2>Key results to remember</h2>
-            <ul><li>A pure point source with no host produces wavelength-dependent residuals mimicking a Sérsic component.</li><li>Every tested nuclear spectrum, stellar reference and detector position exceeds the published 11.8% F444W host fraction.</li><li>The bias inflates or fabricates extended emission, altering sizes, luminosities and masses inferred for compact sources.</li></ul>
+            <ul><li>A pure point source with no host still yields a spurious 11.8% Sérsic component.</li><li>The error persists across spectra, stellar libraries and all tested detector positions.</li><li>Inferred sizes, luminosities and masses of little red dots are therefore biased.</li></ul>
           </section>
         </aside>
         <section class="figure-panel" data-role="figure-panel" data-layout="hero-1">
           <figure class="figure-card" data-role="figure-card">
   <img src="assets/Figure1.png" alt="Figure 1">
-  <figcaption><strong>Figure 1 |</strong> Subtracting a stellar PSF from a point-only LRD leaves filter-dependent residuals that masquerade as a Sérsic host.</figcaption>
+  <figcaption><strong>Figure 1 |</strong> Subtracting a stellar PSF from a point-only little red dot leaves wavelength-dependent residuals mimicking a Sérsic host.</figcaption>
 </figure><figure class="figure-card" data-role="figure-card">
   <img src="assets/ExtendedDataFigure1.png" alt="Figure 2">
-  <figcaption><strong>Figure 2 |</strong> Across all tested spectra, references and detector positions, the spurious F444W host allocation always exceeds the published 11.8% value.</figcaption>
+  <figcaption><strong>Figure 2 |</strong> Every tested nuclear spectrum, stellar reference and detector position allocates more F444W flux than the published 11.8% component.</figcaption>
 </figure>
         </section>
       </section>
