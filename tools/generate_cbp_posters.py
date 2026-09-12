@@ -186,6 +186,13 @@ def esc(value: Any) -> str:
     return html.escape(str(value or ""), quote=True)
 
 
+def trim_words(value: Any, max_words: int) -> str:
+    words = str(value or "").split()
+    if len(words) <= max_words:
+        return " ".join(words)
+    return " ".join(words[:max_words]).rstrip(".,;:") + "..."
+
+
 def replace_once(text: str, pattern: str, replacement: str, *, flags: int = 0) -> str:
     new, count = re.subn(pattern, replacement, text, count=1, flags=flags)
     if count != 1:
@@ -271,7 +278,7 @@ def edit_poster(
     fig_html = []
     for idx in selected:
         fig = figures[idx]
-        caption = captions.get(str(idx)) or fig.get("caption") or f"Figure {fig['number']}"
+        caption = trim_words(captions.get(str(idx)) or fig.get("caption") or f"Figure {fig['number']}", 12)
         fig_html.append(
             f'''<figure class="figure-card" data-role="figure-card">
   <img src="assets/{esc(fig["filename"])}" alt="Figure {esc(fig["number"])}">
