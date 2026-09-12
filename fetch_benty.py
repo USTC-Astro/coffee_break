@@ -361,6 +361,238 @@ def _download_source(arxiv_id: str, directory: str):
     print(" done.")
 
 
+def _extract_latex_braced(text: str, command: str) -> str:
+    """Extract the first braced argument after a LaTeX command."""
+    pos = text.find(command)
+    if pos < 0:
+        return ""
+    start = text.find("{", pos + len(command))
+    if start < 0:
+        return ""
+    depth = 0
+    for i in range(start, len(text)):
+        char = text[i]
+        if char == "{" and (i == 0 or text[i - 1] != "\\"):
+            depth += 1
+        elif char == "}" and (i == 0 or text[i - 1] != "\\"):
+            depth -= 1
+            if depth == 0:
+                return text[start + 1:i]
+    return ""
+
+
+def _find_main_tex(src_dir: Path) -> Path:
+    tex_files = sorted(src_dir.rglob("*.tex"), key=lambda p: (-p.stat().st_size, str(p)))
+    for tex in tex_files:
+        raw = tex.read_text(encoding="utf-8", errors="replace")
+        if "\\documentclass" in raw or "\\begin{document}" in raw:
+            return tex
+    if tex_files:
+        return tex_files[0]
+    raise FileNotFoundError(f"No .tex file found in {src_dir}")
+
+
+def _find_graphic_file(src_dir: Path, tex_dir: Path, ref: str) -> Path | None:
+    ref = ref.strip().strip("{}")
+    if not ref:
+        return None
+    ref_path = Path(ref)
+    candidates: list[Path] = []
+    search_roots = [tex_dir, src_dir]
+    suffixes = ["", ".pdf", ".png", ".jpg", ".jpeg", ".eps"]
+    for root in search_roots:
+        for suffix in suffixes:
+            candidate = root / (str(ref_path) + suffix if not ref_path.suffix else str(ref_path))
+            candidates.append(candidate)
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    stem = ref_path.stem or ref_path.name
+    for match in src_dir.rglob(f"{stem}.*"):
+        if match.suffix.lower() in {".pdf", ".png", ".jpg", ".jpeg", ".eps"}:
+            return match
+    return None
+
+
+def _copy_or_render_graphic(src: Path, dst_dir: Path) -> Path | None:
+    dst_dir.mkdir(parents=True, exist_ok=True)
+    suffix = src.suffix.lower()
+    if suffix in {".png", ".jpg", ".jpeg"}:
+        dst = dst_dir / src.name
+        shutil.copy2(src, dst)
+        return dst
+    if suffix == ".pdf":
+        dst = dst_dir / f"{src.stem}.png"
+        try:
+            try:
+                import pymupdf as fitz
+            except ImportError:
+                import fitz
+            doc = fitz.open(src)
+            page = doc.load_page(0)
+            pix = page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
+            pix.save(dst)
+            doc.close()
+            return dst
+        except Exception as exc:
+            log.warning(f"    PDF 图转 PNG 失败：{src.name}: {exc}")
+            return None
+    log.warning(f"    不支持的图片格式：{src.name}")
+    return None
+
+
+def _fetch_arxiv_metadata(arxiv_id: str) -> dict:
+    """Fetch basic metadata from the arXiv API with the same tolerant session."""
+    import xml.etree.ElementTree as ET
+
+    url = f"https://export.arxiv.org/api/query?id_list={arxiv_id}"
+    resp = _make_session().get(url, timeout=20)
+    if resp.status_code == 429:
+        raise RuntimeError("arXiv API rate limited")
+    resp.raise_for_status()
+    tree = ET.fromstring(resp.text)
+    ns = {"atom": "http://www.w3.org/2005/Atom"}
+    entry = tree.find("atom:entry", ns)
+    if entry is None:
+        return {}
+    title = entry.findtext("atom:title", default="", namespaces=ns).strip().replace("\n", " ")
+    summary = entry.findtext("atom:summary", default="", namespaces=ns).strip().replace("\n", " ")
+    authors = [
+        a.findtext("atom:name", default="", namespaces=ns)
+        for a in entry.findall("atom:author", ns)
+    ]
+    return {"title": title, "summary": summary, "authors": [a for a in authors if a]}
+
+
+def _read_existing_summary_metadata(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    raw = path.read_text(encoding="utf-8", errors="replace")
+    title_match = re.search(r"^\s*#\s+(.+)$", raw, flags=re.MULTILINE)
+    abstract_match = re.search(
+        r"\*\*Abstract:\*\*\s*(.*?)(?:\n\s*\n(?:>|<div id=\"div_fig|\Z))",
+        raw,
+        flags=re.DOTALL,
+    )
+    author = ""
+    if title_match:
+        after_title = raw[title_match.end():].strip()
+        for line in after_title.splitlines():
+            line = line.strip()
+            if line and not line.startswith("**Abstract:**") and not line.startswith("<"):
+                author = line
+                break
+    return {
+        "title": clean_inline(title_match.group(1)) if title_match else "",
+        "summary": clean_inline(abstract_match.group(1)) if abstract_match else "",
+        "authors": [clean_inline(author)] if author else [],
+    }
+
+
+def _simple_source_summary(arxiv_id, votes, output_dir, paper_author=""):
+    """Fallback source parser for simple journal-style arXiv packages.
+
+    Handles Nature/Springer-style sources such as main.tex plus Figure1.pdf,
+    without requiring arxiv_on_deck_2.
+    """
+    src_dir = output_dir / f"_src_{arxiv_id}"
+    fig_dir = output_dir / "figs" / arxiv_id
+    fig_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        log.info(f"  下载 LaTeX 源码：{arxiv_id}")
+        _download_source(arxiv_id, str(src_dir))
+        tex_path = _find_main_tex(src_dir)
+        raw = tex_path.read_text(encoding="utf-8", errors="replace")
+
+        out_file = output_dir / f"{arxiv_id}.md"
+        metadata = _read_existing_summary_metadata(out_file)
+        title = _clean_latex(_extract_latex_braced(raw, "\\title") or arxiv_id)
+        abstract_match = re.search(
+            r"\\begin\{abstract\}(.*?)\\end\{abstract\}",
+            raw,
+            flags=re.DOTALL | re.IGNORECASE,
+        )
+        abstract = _clean_latex(abstract_match.group(1)) if abstract_match else ""
+        authors = _clean_latex(paper_author or "(author list unavailable)")
+        if title == arxiv_id and metadata.get("title"):
+            title = metadata["title"]
+        if not abstract and metadata.get("summary"):
+            abstract = metadata["summary"]
+        if (not paper_author) and metadata.get("authors"):
+            authors = ", ".join(metadata["authors"])
+        if title == arxiv_id or not abstract:
+            try:
+                metadata = {**metadata, **_fetch_arxiv_metadata(arxiv_id)}
+            except Exception as exc:
+                log.warning(f"  arXiv API 元数据获取失败：{exc}")
+        if title == arxiv_id and metadata.get("title"):
+            title = _clean_latex(metadata["title"])
+        if not abstract and metadata.get("summary"):
+            abstract = _clean_latex(metadata["summary"])
+        if (not paper_author) and metadata.get("authors"):
+            authors = _clean_latex(", ".join(metadata["authors"]))
+
+
+        fig_blocks = []
+        figure_envs = re.findall(
+            r"\\begin\{figure\*?\}(.*?)\\end\{figure\*?\}",
+            raw,
+            flags=re.DOTALL | re.IGNORECASE,
+        )
+        for i, block in enumerate(figure_envs, 1):
+            graphics = re.findall(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}", block)
+            if not graphics:
+                continue
+            web_paths = []
+            for graphic in graphics:
+                src = _find_graphic_file(src_dir, tex_path.parent, graphic)
+                if not src:
+                    log.warning(f"    找不到图片：{graphic}")
+                    continue
+                rendered = _copy_or_render_graphic(src, fig_dir)
+                if rendered:
+                    log.info(f"    复制图片：{rendered.name}")
+                    web_paths.append(f"/data/figs/{arxiv_id}/{rendered.name}")
+            if not web_paths:
+                continue
+            caption = _extract_latex_braced(block, "\\caption")
+            label = _extract_latex_braced(block, "\\label")
+            if len(web_paths) > 1:
+                width = 100 // len(web_paths)
+                imgs = "".join(
+                    f'<img src="{p}" alt="Fig{i}.{j}" width="{width}%"/>'
+                    for j, p in enumerate(web_paths, 1)
+                )
+            else:
+                imgs = f'<img src="{web_paths[0]}" alt="Fig{i}" width="100%"/>'
+            fig_blocks.append(
+                f'<div id="div_fig{i}" markdown="1">\n\n{imgs}\n\n'
+                f'**Figure {i}. -** {_clean_latex(caption)} (*{label}*)\n\n</div>'
+            )
+
+        if not fig_blocks:
+            raise ValueError("No figures found in source package.")
+
+        header = (f"<!-- votes: {votes} -->\n\n"
+                  f"[![arXiv](https://img.shields.io/badge/arXiv-{arxiv_id}-b31b1b.svg)]"
+                  f"(https://arxiv.org/abs/{arxiv_id})\n\n")
+        md = (
+            f'<div id="title" markdown="1">\n\n# {title}\n\n</div>\n'
+            f'<div id="authors" markdown="1">\n\n{authors}\n\n</div>\n'
+            f'<div id="abstract" markdown="1">\n\n**Abstract:** {abstract}\n\n</div>\n\n'
+            + "\n".join(fig_blocks)
+        )
+        out_file.write_text(header + md, encoding="utf-8")
+        log.info(f"  {arxiv_id} 简易源码解析完成：{len(fig_blocks)} 张图")
+        return out_file
+    except Exception as exc:
+        log.warning(f"  {arxiv_id} 简易源码解析失败：{exc}")
+        return fallback_summary(arxiv_id, votes, output_dir)
+    finally:
+        if src_dir.exists():
+            shutil.rmtree(src_dir, ignore_errors=True)
+
+
 def generate_summary(arxiv_id, votes, output_dir, paper_author=""):
     """下载 arXiv LaTeX 源码，解析生成带图 Markdown，失败降级为纯文字。"""
     out_file = output_dir / f"{arxiv_id}.md"
@@ -372,8 +604,8 @@ def generate_summary(arxiv_id, votes, output_dir, paper_author=""):
         from arxiv_on_deck_2.arxiv2 import retrieve_document_source
         from arxiv_on_deck_2.latex import LatexDocument, select_most_cited_figures
     except ImportError:
-        log.warning("未找到 arxiv_on_deck_2，改用 arXiv API 生成基础摘要")
-        return fallback_summary(arxiv_id, votes, output_dir)
+        log.warning("未找到 arxiv_on_deck_2，改用简易源码解析")
+        return _simple_source_summary(arxiv_id, votes, output_dir, paper_author=paper_author)
 
     src_dir = output_dir / f"_src_{arxiv_id}"
     fig_dir = output_dir / "figs" / arxiv_id
