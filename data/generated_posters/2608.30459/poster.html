@@ -164,12 +164,7 @@
       gap: 14px;
       align-items: start;
     }
-
-    .meta-source {
-      margin-bottom: 8px;
-    }
-
-    .meta-links {
+.meta-links {
       display: flex;
       flex-wrap: wrap;
       gap: 7px 12px;
@@ -396,10 +391,10 @@
       <header class="header" data-role="header">
         <div class="title-block">
           <h1 class="headline" data-role="headline">Stellar PSFs Fake Hosts in Little Red Dots</h1>
-          <p class="subtitle">Broad-band point-spread functions built from field stars misassign light when source spectra differ.</p>
+          <p class="subtitle">Broad-band point-spread functions calibrated on stars misassign light when source spectra differ.</p>
         </div>
         <div class="meta" data-role="meta">
-          <strong>arXiv:2608.30459 — Source-conditioned polychromatic PSFs for compact high-redshift nuclei</strong>
+          <strong>arXiv:2608.30459 — source-conditioned polychromatic PSFs for compact high-redshift nuclei</strong>
           <div class="meta-content">
   <div class="meta-text">
 <div class="meta-links">
@@ -417,25 +412,25 @@
         <aside class="text-column" data-role="text-column">
           <section class="text-card text-card-background">
             <h2>Background</h2>
-            <p>Compact high-redshift sources are modelled by subtracting a point-spread function built from nearby field stars. Inferred sizes, luminosities and masses all rest on that subtraction being correct.</p>
-            <div class="knowledge-gap">Field-star PSFs assume the target&#x27;s spectrum matches the stars, which little red dots violate.</div>
+            <p>Compact high-redshift sources are modelled by subtracting a point-spread function built from field stars. Inferred sizes, luminosities and masses all rest on that subtraction being colour-correct.</p>
+            <div class="knowledge-gap">No test asked whether a stellar PSF stays valid when the target&#x27;s spectrum differs from the stars&#x27;.</div>
           </section>
           <section class="text-card text-card-selling">
             <h2>What this paper is selling</h2>
-            <p>The authors derive why broad-band stellar PSFs systematically misassign light for spectrally distinct compact sources. They demonstrate a correction that removes spurious extended components from little red dots and similar nuclei.</p>
+            <p>The authors derive why broad-band stellar PSFs systematically misassign flux for spectrally distinct compact sources, then demonstrate a correction. Applied to little red dots, the bias inflates or invents extended host components.</p>
           </section>
           <section class="text-card text-card-results">
             <h2>Key results to remember</h2>
-            <ul><li>A pure point source with no host still yields a spurious 11.8% Sérsic component.</li><li>The error persists across spectra, stellar libraries and all tested detector positions.</li><li>Inferred sizes, luminosities and masses of little red dots are therefore biased.</li></ul>
+            <ul><li>A pure point source yields wavelength-dependent residuals mimicking a Sérsic host.</li><li>Every tested nuclear spectrum, stellar reference and detector position exceeds the published 11.8% F444W host.</li><li>The bias is large enough to change inferred sizes, luminosities and masses.</li></ul>
           </section>
         </aside>
         <section class="figure-panel" data-role="figure-panel" data-layout="hero-1">
           <figure class="figure-card" data-role="figure-card">
   <img src="assets/Figure1.png" alt="Figure 1">
-  <figcaption><strong>Figure 1 |</strong> Subtracting a stellar PSF from a point-only little red dot leaves wavelength-dependent residuals mimicking a Sérsic host.</figcaption>
+  <figcaption><strong>Figure 1 |</strong> Subtracting a stellar PSF from a point-only LRD leaves filter-dependent residuals that masquerade as host flux.</figcaption>
 </figure><figure class="figure-card" data-role="figure-card">
   <img src="assets/ExtendedDataFigure1.png" alt="Figure 2">
-  <figcaption><strong>Figure 2 |</strong> Every tested nuclear spectrum, stellar reference and detector position allocates more F444W flux than the published 11.8% component.</figcaption>
+  <figcaption><strong>Figure 2 |</strong> Across all tested spectra, references and detector positions, the spurious F444W host allocation always exceeds the published value.</figcaption>
 </figure>
         </section>
       </section>
