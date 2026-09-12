@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Broad-band PSF errors inflate little red dot hosts</title>
+  <title>Stellar PSFs Inflate Little Red Dots</title>
   <script>
     window.MathJax = {
       tex: {
@@ -45,7 +45,7 @@
       --figure-gap: 22px;
       --text-fr: 1.15fr;
       --figure-fr: 1.55fr;
-      --caption-size: 21px;
+      --caption-size: 19px;
       --body-text-size: 25px;
       --result-text-size: 22px;
     }
@@ -364,9 +364,9 @@
     .figure-card figcaption {
       padding-top: 2px;
       font-size: var(--caption-size);
-      line-height: 1.16;
+      line-height: 1.12;
       color: var(--muted);
-      max-height: 78px;
+      max-height: 104px;
       overflow: hidden;
       font-family: var(--text-font);
     }
@@ -395,11 +395,11 @@
     <main class="poster" data-role="poster">
       <header class="header" data-role="header">
         <div class="title-block">
-          <h1 class="headline" data-role="headline">Broad-band PSF errors inflate little red dot hosts</h1>
-          <p class="subtitle">Source-conditioned polychromatic PSFs reveal systematic host overestimation in compact high-redshift nuclei.</p>
+          <h1 class="headline" data-role="headline">Stellar PSFs Inflate Little Red Dots</h1>
+          <p class="subtitle">Broad-band host measurements of compact high-redshift nuclei are systematically biased by mismatched stellar point-spread functions.</p>
         </div>
         <div class="meta" data-role="meta">
-          <strong>arXiv:2608.30459; Zhang et al. LRDs; PSF modeling; high-redshift compact sources.</strong>
+          <strong>arXiv:2608.30459 — Source-conditioned polychromatic PSFs for compact nuclei.</strong>
           <div class="meta-content">
   <div class="meta-text">
     <div class="meta-source">First author / year / source</div>
@@ -418,25 +418,25 @@
         <aside class="text-column" data-role="text-column">
           <section class="text-card text-card-background">
             <h2>Background</h2>
-            <p>Compact high-redshift sources often overlap with distinct physical components in diffraction-limited images. Field stars are used to model the point-spread function and infer host structure.</p>
-            <div class="knowledge-gap">Broad-band PSF modeling assumes field stars match target spectra, but spectral mismatches can misassign light.</div>
+            <p>Compact high-redshift sources overlap with distinct physical components in diffraction-limited images. Field stars are commonly used to model the point-spread function and infer intrinsic structure.</p>
+            <div class="knowledge-gap">This method assumes the target&#x27;s spectrum matches the field stars, which is rarely true for little red dots.</div>
           </section>
           <section class="text-card text-card-selling">
             <h2>What this paper is selling</h2>
-            <p>The paper shows that broad-filter PSF fitting systematically overestimates extended host flux for spectra differing from field stars. It derives the error&#x27;s origin and provides a correction for other compact distant sources.</p>
+            <p>Using little red dots as a test case, the authors show that broad-filter PSF fitting misassigns light when spectra differ. They derive the error&#x27;s physical origin and demonstrate a correction for other compact distant sources.</p>
           </section>
           <section class="text-card text-card-results">
             <h2>Key results to remember</h2>
-            <ul><li>Point-only LRDs produce wavelength-dependent residuals mimicking Sérsic hosts in broad filters.</li><li>The F444W host allocation exceeds 11.8% for every tested spectral and detector variation.</li><li>Spectral mismatch between target and PSF stars drives the systematic host overestimate.</li></ul>
+            <ul><li>A pure point source can appear to have a host galaxy.</li><li>The spurious F444W host allocation exceeds the published 11.8% value.</li><li>The bias changes inferred sizes, luminosities, and masses.</li></ul>
           </section>
         </aside>
         <section class="figure-panel" data-role="figure-panel" data-layout="hero-1">
           <figure class="figure-card" data-role="figure-card">
   <img src="assets/Figure1.png" alt="Figure 1">
-  <figcaption><strong>Fig. 1.</strong> A point-only LRD yields filter-dependent residuals that are wrongly attributed to a Sérsic host component.</figcaption>
+  <figcaption><strong>Fig. 1.</strong> A point-only little red dot produces wavelength-dependent residuals that mimic a Sérsic host component.</figcaption>
 </figure><figure class="figure-card" data-role="figure-card">
   <img src="assets/ExtendedDataFigure1.png" alt="Figure 2">
-  <figcaption><strong>Fig. 2.</strong> All tested spectral and detector variations allocate more than 11.8% F444W flux to a host.</figcaption>
+  <figcaption><strong>Fig. 2.</strong> Every tested input change leaves the spurious F444W host allocation above the published value.</figcaption>
 </figure>
         </section>
       </section>
