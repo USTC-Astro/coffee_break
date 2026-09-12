@@ -373,8 +373,6 @@ def main() -> None:
         raise SystemExit("No papers to generate.")
 
     carousel_dir = DATA_DIR / "posters" / "current"
-    if carousel_dir.exists():
-        shutil.rmtree(carousel_dir)
     carousel_dir.mkdir(parents=True, exist_ok=True)
 
     api_key = os.environ.get("DEEPSEEK_API_KEY", "").strip()
@@ -391,10 +389,17 @@ def main() -> None:
         if item:
             manifest_items.append(item)
 
-    (carousel_dir / "manifest.json").write_text(
-        json.dumps({"images": manifest_items}, indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
+    if manifest_items:
+        keep = {item["name"] for item in manifest_items}
+        for old_preview in carousel_dir.glob("*.png"):
+            if old_preview.name not in keep:
+                old_preview.unlink()
+        (carousel_dir / "manifest.json").write_text(
+            json.dumps({"images": manifest_items}, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+    else:
+        print("warning: no posters generated; keeping existing current poster manifest.", file=sys.stderr)
     print(f"Generated {len(manifest_items)} poster(s).")
 
 
