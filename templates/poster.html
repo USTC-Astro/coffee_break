@@ -391,7 +391,8 @@ async function loadPosters() {
     const url = staticBase
       ? staticBase + 'data/posters/' + week + '/manifest.json'
       : '/api/posters/' + week;
-    const r = await fetch(url);
+    const sep = url.includes('?') ? '&' : '?';
+    const r = await fetch(url + sep + 'v=' + Date.now(), {cache: 'no-store'});
     const data = await r.json();
     images = (data.images || []).map(img => ({
       ...img,
