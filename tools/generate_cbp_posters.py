@@ -208,9 +208,11 @@ def first_complete_sentence(value: Any, fallback: Any = "", max_words: int = 30)
 
 def clean_caption_for_display(value: Any) -> str:
     text = re.sub(r"\s+", " ", str(value or "")).strip()
+    text = text.replace(r"\,", " ")
     text = re.sub(r"cite[tp]?\s*(?:\[[^\]]*\])*\s*\{[^}]*\}", "", text)
     text = re.sub(r"\\(?:cite[tp]?|ref|label)\s*(?:\[[^\]]*\])*\s*\{[^}]*\}", "", text)
     text = re.sub(r"\\(?:rm|mathrm|textrm|text)\s*\{([^}$]+)\}?", r"\1", text)
+    text = re.sub(r"\\rm\s+([A-Za-z]+)", r"\1", text)
     text = re.sub(r"\\(?:bf|it|emph)\s*\{([^}]+)\}", r"\1", text)
     text = re.sub(r"\\(?:bf|it)\s+", "", text)
     text = re.sub(r"\\approx", "~", text)
@@ -236,6 +238,13 @@ def original_caption_lead(fig: dict[str, str], max_words: int = 34) -> str:
     caption = re.sub(r"^(?:bf\s*)?([a-z])\s*,\s+", r"\1, ", caption, flags=re.IGNORECASE)
     lead = first_complete_sentence(caption, f"Figure {fig.get('number', '')}", max_words=max_words)
     return lead
+
+
+def poster_caption(value: Any, fig: dict[str, str], max_words: int = 30) -> str:
+    generated = clean_caption_for_display(value)
+    if generated:
+        return first_complete_sentence(generated, max_words=max_words)
+    return original_caption_lead(fig, max_words=max_words)
 
 
 def replace_once(text: str, pattern: str, replacement: str, *, flags: int = 0) -> str:
@@ -327,7 +336,7 @@ def edit_poster(
     fig_html = []
     for idx in selected:
         fig = figures[idx]
-        caption = original_caption_lead(fig)
+        caption = poster_caption(captions.get(str(idx)), fig)
         fig_html.append(
             f'''<figure class="figure-card" data-role="figure-card">
   <img src="assets/{esc(fig["filename"])}" alt="Figure {esc(fig["number"])}">
