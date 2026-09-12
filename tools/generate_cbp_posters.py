@@ -206,6 +206,14 @@ def first_complete_sentence(value: Any, fallback: Any = "", max_words: int = 30)
     return trim_words(text, max_words)
 
 
+def original_caption_lead(fig: dict[str, str], max_words: int = 34) -> str:
+    caption = re.sub(r"\s+", " ", str(fig.get("caption") or "")).strip()
+    caption = re.sub(r"^(?:fig|figure|fig\.?)\s*[:._-]?\s*[\w:-]*\s+", "", caption, flags=re.IGNORECASE)
+    caption = re.sub(r"^(?:bf\s*)?([a-z])\s*,\s+", r"\1, ", caption, flags=re.IGNORECASE)
+    lead = first_complete_sentence(caption, f"Figure {fig.get('number', '')}", max_words=max_words)
+    return lead
+
+
 def replace_once(text: str, pattern: str, replacement: str, *, flags: int = 0) -> str:
     new, count = re.subn(pattern, replacement, text, count=1, flags=flags)
     if count != 1:
@@ -274,6 +282,8 @@ def apply_coffee_theme(doc: str) -> str:
         doc = re.sub(rf"{re.escape(name)}:\s*[^;]+;", f"{name}: {value};", doc)
     doc = re.sub(r"--soft:\s*[^;]+;", "--soft: rgba(169, 79, 43, 0.08);", doc)
     doc = re.sub(r"--warm:\s*[^;]+;", "--warm: rgba(169, 79, 43, 0.12);", doc)
+    doc = re.sub(r'(<a class="meta-link" href="[^"]+")>', r'\1 target="_blank" rel="noopener">', doc)
+    doc = re.sub(r'(<a class="meta-qr" href="[^"]+")', r'\1 target="_blank" rel="noopener"', doc)
     return doc
 
 
@@ -293,15 +303,11 @@ def edit_poster(
     fig_html = []
     for idx in selected:
         fig = figures[idx]
-        caption = first_complete_sentence(
-            captions.get(str(idx)),
-            fig.get("caption") or f"Figure {fig['number']}",
-            max_words=30,
-        )
+        caption = original_caption_lead(fig)
         fig_html.append(
             f'''<figure class="figure-card" data-role="figure-card">
   <img src="assets/{esc(fig["filename"])}" alt="Figure {esc(fig["number"])}">
-  <figcaption><strong>Fig. {esc(fig["number"])}.</strong> {esc(caption)}</figcaption>
+  <figcaption><strong>Figure {esc(fig["number"])} |</strong> {esc(caption)}</figcaption>
 </figure>'''
         )
 
