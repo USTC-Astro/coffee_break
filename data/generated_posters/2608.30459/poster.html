@@ -396,7 +396,7 @@
       <header class="header" data-role="header">
         <div class="title-block">
           <h1 class="headline" data-role="headline">Stellar PSFs Fake Hosts in Little Red Dots</h1>
-          <p class="subtitle">Mismatched spectra between source and field stars systematically inflate inferred host sizes, luminosities, and masses.</p>
+          <p class="subtitle">Broad-band point-spread functions built from field stars misassign light when source spectra differ.</p>
         </div>
         <div class="meta" data-role="meta">
           <strong>arXiv:2608.30459 — Source-conditioned polychromatic PSFs for compact high-redshift nuclei</strong>
@@ -418,25 +418,25 @@
         <aside class="text-column" data-role="text-column">
           <section class="text-card text-card-background">
             <h2>Background</h2>
-            <p>Compact high-redshift sources are modelled by subtracting a point-spread function built from nearby field stars. This assumes the target&#x27;s spectrum matches the stellar reference across every filter.</p>
-            <div class="knowledge-gap">No one had quantified how spectral mismatch between source and PSF stars biases broad-band host measurements.</div>
+            <p>Little red dots are compact early-Universe sources whose unresolved nuclei and possible hosts overlap in the same diffraction-limited image. Their structure is usually inferred by subtracting a point-spread function modelled from nearby field stars.</p>
+            <div class="knowledge-gap">That stellar PSF assumes the target&#x27;s spectrum matches the stars, an assumption never tested for spectrally distinct compact sources.</div>
           </section>
           <section class="text-card text-card-selling">
             <h2>What this paper is selling</h2>
-            <p>The authors derive the physical and mathematical origin of this light-misassignment error and demonstrate a correction. Applied to little red dots, it revises host sizes, luminosities, and masses.</p>
+            <p>The authors derive why broad-band stellar PSFs systematically misassign flux for sources with different spectral slopes, then demonstrate a source-conditioned polychromatic correction. The effect is large enough to change inferred sizes, luminosities and masses of little red dots.</p>
           </section>
           <section class="text-card text-card-results">
             <h2>Key results to remember</h2>
-            <ul><li>A pure point source generates spurious wavelength-dependent Sérsic residuals in every filter.</li><li>The published 11.8% F444W host component survives no tested spectral or positional variation.</li><li>Source-conditioned polychromatic PSFs remove the bias for other compact distant sources.</li></ul>
+            <ul><li>A pure point source with no host produces wavelength-dependent residuals mimicking a Sérsic component.</li><li>Every tested nuclear spectrum, stellar reference and detector position exceeds the published 11.8% F444W host fraction.</li><li>The bias inflates or fabricates extended emission, altering sizes, luminosities and masses inferred for compact sources.</li></ul>
           </section>
         </aside>
         <section class="figure-panel" data-role="figure-panel" data-layout="hero-1">
           <figure class="figure-card" data-role="figure-card">
   <img src="assets/Figure1.png" alt="Figure 1">
-  <figcaption><strong>Figure 1 |</strong> A point-only LRD produces the wavelength-dependent residual assigned to a Sérsic component.</figcaption>
+  <figcaption><strong>Figure 1 |</strong> Subtracting a stellar PSF from a point-only LRD leaves filter-dependent residuals that masquerade as a Sérsic host.</figcaption>
 </figure><figure class="figure-card" data-role="figure-card">
   <img src="assets/ExtendedDataFigure1.png" alt="Figure 2">
-  <figcaption><strong>Figure 2 |</strong> The F444W allocation for a source containing no galaxy survives every tested change of input.</figcaption>
+  <figcaption><strong>Figure 2 |</strong> Across all tested spectra, references and detector positions, the spurious F444W host allocation always exceeds the published 11.8% value.</figcaption>
 </figure>
         </section>
       </section>
