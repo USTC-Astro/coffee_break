@@ -42,9 +42,9 @@ def get_mtime() -> str:
 def load_site_info() -> dict:
     info_file = DATA_DIR / "site_info.json"
     defaults = {
-        "default_time": "每周五下午 4:00",
+        "default_time": "每周一下午 4:00",
         "default_venue": "WFST 远程观测室（物质科研楼 C1011）或理化大楼 18 楼院士工作站轮流举行",
-        "weekly_time": "本周五",
+        "weekly_time": "本周一",
         "weekly_venue": "WFST 远程观测室（物质科研楼 C1011）",
         "venues": [
             "理化大楼 18 楼院士工作站",
