@@ -43,8 +43,9 @@ def load_site_info() -> dict:
     info_file = DATA_DIR / "site_info.json"
     defaults = {
         "default_time": "每周五下午 4:00",
-        "weekly_time": "本周五下午 4:00",
-        "weekly_venue": "理化大楼 18 楼院士工作站",
+        "default_venue": "WFST 远程观测室（物质科研楼 C1011）",
+        "weekly_time": "本周五",
+        "weekly_venue": "WFST 远程观测室（物质科研楼 C1011）",
         "venues": [
             "理化大楼 18 楼院士工作站",
             "WFST 远程观测室（物质科研楼 C1011）",
@@ -70,6 +71,8 @@ def load_site_info() -> dict:
         cleaned["weekly_time"] = cleaned["time"]
     if "venue" in cleaned and "weekly_venue" not in cleaned:
         cleaned["weekly_venue"] = cleaned["venue"]
+    if "weekly_venue" in cleaned and "default_venue" not in cleaned:
+        cleaned["default_venue"] = cleaned["weekly_venue"]
     return {**defaults, **cleaned}
 
 

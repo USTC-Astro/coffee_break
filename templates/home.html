@@ -200,8 +200,9 @@
           <a href="/poster">看海报</a>
         </div>
         <div class="details">
-          <strong>本周时间</strong>：{{ site_info.weekly_time }}<br>
-          <strong>本周地点</strong>：{{ site_info.weekly_venue }}<br>
+          <strong>时间</strong>：{{ site_info.default_time }}<br>
+          <strong>地点</strong>：{{ site_info.default_venue }}<br>
+          <strong>本周安排</strong>：{{ site_info.weekly_time }}于{{ site_info.weekly_venue }}<br>
           <strong>常用地点</strong>：
           <ul class="venue-list">
             {% for venue in site_info.venues %}
