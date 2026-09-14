@@ -14,6 +14,10 @@ on:
         description: "本周 Coffee Break 地点；留空则保持当前设置"
         required: false
         default: ""
+      weekly_time:
+        description: "本周 Coffee Break 时间；留空则保持当前设置"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -58,8 +62,11 @@ jobs:
           fi
 
       - name: Update homepage info
-        if: ${{ github.event.inputs.venue != '' }}
-        run: python tools/update_site_info.py --venue "${{ github.event.inputs.venue }}"
+        if: ${{ github.event.inputs.venue != '' || github.event.inputs.weekly_time != '' }}
+        run: |
+          python tools/update_site_info.py \
+            --weekly-time "${{ github.event.inputs.weekly_time }}" \
+            --weekly-venue "${{ github.event.inputs.venue }}"
 
       - name: Generate coffee-break posters
         env:

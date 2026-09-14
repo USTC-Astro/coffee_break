@@ -42,8 +42,13 @@ def get_mtime() -> str:
 def load_site_info() -> dict:
     info_file = DATA_DIR / "site_info.json"
     defaults = {
-        "time": "每周五下午 4:00",
-        "venue": "理化大楼 18 楼院士工作站 / WFST 远程观测室（物质科研楼 C1011）轮流安排",
+        "default_time": "每周五下午 4:00",
+        "weekly_time": "本周五下午 4:00",
+        "weekly_venue": "理化大楼 18 楼院士工作站",
+        "venues": [
+            "理化大楼 18 楼院士工作站",
+            "WFST 远程观测室（物质科研楼 C1011）",
+        ],
     }
     if not info_file.exists():
         return defaults
@@ -51,7 +56,21 @@ def load_site_info() -> dict:
         info = json.loads(info_file.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         return defaults
-    return {**defaults, **{k: v for k, v in info.items() if isinstance(v, str) and v.strip()}}
+    if not isinstance(info, dict):
+        return defaults
+    cleaned = {}
+    for key, value in info.items():
+        if isinstance(value, str) and value.strip():
+            cleaned[key] = value
+        elif key == "venues" and isinstance(value, list):
+            venues = [item.strip() for item in value if isinstance(item, str) and item.strip()]
+            if venues:
+                cleaned[key] = venues
+    if "time" in cleaned and "weekly_time" not in cleaned:
+        cleaned["weekly_time"] = cleaned["time"]
+    if "venue" in cleaned and "weekly_venue" not in cleaned:
+        cleaned["weekly_venue"] = cleaned["venue"]
+    return {**defaults, **cleaned}
 
 
 def ensure_clean_dir(path: Path) -> None:
