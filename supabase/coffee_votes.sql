@@ -18,6 +18,18 @@ create table if not exists public.coffee_vote_settings (
   value text not null
 );
 
+create table if not exists public.coffee_vote_history (
+  archive_week text not null,
+  original_week text not null default 'current',
+  device_id text not null,
+  drink text not null,
+  name text not null default 'anomaly',
+  created_at timestamptz not null,
+  updated_at timestamptz not null,
+  archived_at timestamptz not null default now(),
+  primary key (archive_week, device_id)
+);
+
 insert into public.coffee_vote_settings (key, value)
 values ('vote_code', '')
 on conflict (key) do update set value = excluded.value;
@@ -28,6 +40,7 @@ on conflict (key) do nothing;
 
 alter table public.coffee_votes enable row level security;
 alter table public.coffee_vote_settings enable row level security;
+alter table public.coffee_vote_history enable row level security;
 
 drop policy if exists "coffee_votes_select" on public.coffee_votes;
 create policy "coffee_votes_select"
@@ -161,6 +174,8 @@ set search_path = public
 as $$
 declare
   expected_token text;
+  archive_week text;
+  archived_count integer;
   deleted_count integer;
 begin
   select value into expected_token
@@ -171,6 +186,39 @@ begin
     return jsonb_build_object('ok', false, 'error', 'Invalid admin token');
   end if;
 
+  archive_week := to_char((now() at time zone 'Asia/Shanghai')::date, 'YYYY-MM-DD');
+
+  insert into public.coffee_vote_history (
+    archive_week,
+    original_week,
+    device_id,
+    drink,
+    name,
+    created_at,
+    updated_at,
+    archived_at
+  )
+  select
+    archive_week,
+    week,
+    device_id,
+    drink,
+    name,
+    created_at,
+    updated_at,
+    now()
+  from public.coffee_votes
+  where week = 'current'
+  on conflict (archive_week, device_id) do update set
+    original_week = excluded.original_week,
+    drink = excluded.drink,
+    name = excluded.name,
+    created_at = excluded.created_at,
+    updated_at = excluded.updated_at,
+    archived_at = excluded.archived_at;
+
+  get diagnostics archived_count = row_count;
+
   delete from public.coffee_votes
   where week = 'current';
 
@@ -178,6 +226,8 @@ begin
 
   return jsonb_build_object(
     'ok', true,
+    'archive_week', archive_week,
+    'archived', archived_count,
     'cleared', deleted_count,
     'votes', public.coffee_vote_list('current')
   );
