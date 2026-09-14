@@ -140,6 +140,17 @@
     color: var(--text);
     font-weight: 500;
   }
+  .open-source-note {
+    margin-top: 0.9rem;
+    color: var(--muted);
+    font-size: 0.86rem;
+    line-height: 1.7;
+  }
+  .open-source-note a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(26,86,160,0.35);
+  }
 
   @media (max-width: 820px) {
     header { padding: 1rem 1.2rem; flex-wrap: wrap; gap: 0.8rem; }
@@ -187,6 +198,11 @@
         <div class="details">
           <strong>时间</strong>：{{ site_info.time }}<br>
           <strong>地点</strong>：{{ site_info.venue }}
+          <p class="open-source-note">
+            Coffee Break 网页是 USTC-Astro 开源项目的一部分，代码开放在
+            <a href="https://github.com/USTC-Astro/" target="_blank" rel="noopener">GitHub</a>，
+            也欢迎感兴趣的同学参与和贡献。
+          </p>
         </div>
       </div>
     </div>
