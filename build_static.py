@@ -44,7 +44,7 @@ def load_site_info() -> dict:
     defaults = {
         "default_time": "每周一下午 4:00",
         "default_venue": "WFST 远程观测室（物质科研楼 C1011）或理化大楼 18 楼院士工作站轮流举行",
-        "weekly_time": "本周一",
+        "weekly_time": "本周一 4:00",
         "weekly_venue": "WFST 远程观测室（物质科研楼 C1011）",
         "venues": [
             "理化大楼 18 楼院士工作站",
