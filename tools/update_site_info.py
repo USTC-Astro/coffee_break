@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 INFO_FILE = BASE_DIR / "data" / "site_info.json"
 DEFAULTS = {
     "default_time": "每周五下午 4:00",
-    "default_venue": "WFST 远程观测室（物质科研楼 C1011）",
+    "default_venue": "WFST 远程观测室（物质科研楼 C1011）或理化大楼 18 楼院士工作站轮流举行",
     "weekly_time": "本周五",
     "weekly_venue": "WFST 远程观测室（物质科研楼 C1011）",
     "venues": [
