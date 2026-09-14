@@ -140,10 +140,6 @@
     color: var(--text);
     font-weight: 500;
   }
-  .details .venue-list {
-    margin-top: 0.15rem;
-    padding-left: 1rem;
-  }
   .open-source-note {
     margin-top: 0.9rem;
     color: var(--muted);
@@ -203,12 +199,6 @@
           <strong>时间</strong>：{{ site_info.default_time }}<br>
           <strong>地点</strong>：{{ site_info.default_venue }}<br>
           <strong>本周安排</strong>：{{ site_info.weekly_time }} 于 {{ site_info.weekly_venue }}<br>
-          <strong>常用地点</strong>：
-          <ul class="venue-list">
-            {% for venue in site_info.venues %}
-            <li>{{ venue }}</li>
-            {% endfor %}
-          </ul>
           <p class="open-source-note">
             Coffee Break 网页是 USTC-Astro 开源项目的一部分，代码开放在
             <a href="https://github.com/USTC-Astro/" target="_blank" rel="noopener">GitHub</a>，
