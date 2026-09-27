@@ -173,7 +173,7 @@ set search_path = public
 as $$
 declare
   expected_token text;
-  archive_week text;
+  archive_key text;
   archived_count integer;
   deleted_count integer;
 begin
@@ -185,7 +185,7 @@ begin
     return jsonb_build_object('ok', false, 'error', 'Invalid admin token');
   end if;
 
-  archive_week := to_char((now() at time zone 'Asia/Shanghai')::date, 'YYYY-MM-DD');
+  archive_key := to_char((now() at time zone 'Asia/Shanghai')::date, 'YYYY-MM-DD');
 
   insert into public.coffee_vote_history (
     archive_week,
@@ -198,7 +198,7 @@ begin
     archived_at
   )
   select
-    archive_week,
+    archive_key,
     week,
     device_id,
     drink,
@@ -225,7 +225,7 @@ begin
 
   return jsonb_build_object(
     'ok', true,
-    'archive_week', archive_week,
+    'archive_week', archive_key,
     'archived', archived_count,
     'cleared', deleted_count,
     'votes', public.coffee_vote_list('current')
