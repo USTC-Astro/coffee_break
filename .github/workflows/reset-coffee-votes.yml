@@ -21,9 +21,23 @@ jobs:
             exit 1
           fi
 
-          response="$(curl -fsS -X POST "${SUPABASE_URL%/}/rest/v1/rpc/coffee_vote_clear_current" \
+          http_response="$(curl -sS -X POST "${SUPABASE_URL%/}/rest/v1/rpc/coffee_vote_clear_current" \
             -H "apikey: ${SUPABASE_PUBLISHABLE_KEY}" \
             -H "Authorization: Bearer ${SUPABASE_PUBLISHABLE_KEY}" \
             -H "Content-Type: application/json" \
-            -d "{\"p_token\":\"${SUPABASE_COFFEE_ADMIN_TOKEN}\"}")"
+            -d "{\"p_token\":\"${SUPABASE_COFFEE_ADMIN_TOKEN}\"}" \
+            -w "\n%{http_code}")"
+          http_status="$(printf "%s" "$http_response" | tail -n 1)"
+          response="$(printf "%s" "$http_response" | sed '$d')"
           echo "$response"
+
+          if [ "$http_status" -lt 200 ] || [ "$http_status" -ge 300 ]; then
+            echo "Supabase returned HTTP ${http_status}."
+            exit 1
+          fi
+
+          ok="$(printf "%s" "$response" | python -c 'import json, sys; print(json.load(sys.stdin).get("ok") is True)')"
+          if [ "$ok" != "True" ]; then
+            echo "Supabase reset did not complete."
+            exit 1
+          fi
