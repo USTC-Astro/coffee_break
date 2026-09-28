@@ -394,7 +394,7 @@
           <p class="subtitle">Broadband point-spread functions from field stars can fake extended hosts in compact high-redshift sources.</p>
         </div>
         <div class="meta" data-role="meta">
-          <strong>arXiv:2608.30459 — Source-conditioned polychromatic PSFs for little red dots.</strong>
+          <strong>arXiv:2608.30459 — source-conditioned polychromatic PSFs for little red dots.</strong>
           <div class="meta-content">
   <div class="meta-text">
 <div class="meta-links">
@@ -412,25 +412,25 @@
         <aside class="text-column" data-role="text-column">
           <section class="text-card text-card-background">
             <h2>Background</h2>
-            <p>Little red dots are compact early-Universe sources whose host galaxies are inferred by subtracting stellar point-spread functions. Broadband color mismatches between source and stars can corrupt this subtraction.</p>
-            <div class="knowledge-gap">It was unclear how much of the apparent extended emission in LRDs is real versus a PSF mismatch artifact.</div>
+            <p>Compact high-redshift sources are often decomposed using field-star point-spread functions. This assumes the source and stars share the same spectral shape across a broad filter.</p>
+            <div class="knowledge-gap">No test has checked whether spectrally different compact nuclei bias host measurements from stellar PSF fitting.</div>
           </section>
           <section class="text-card text-card-selling">
             <h2>What this paper is selling</h2>
-            <p>The authors derive the physical and mathematical origin of this error and provide a correction. Applied to LRDs, it shows that a published 11.8% F444W host component is likely spurious.</p>
+            <p>The authors show that mismatched spectra systematically misassign light, creating or inflating apparent extended components. They derive the error&#x27;s origin and demonstrate a correction for other compact distant sources.</p>
           </section>
           <section class="text-card text-card-results">
             <h2>Key results to remember</h2>
-            <ul><li>A pure point source can produce wavelength-dependent residuals mimicking a Sérsic host.</li><li>The spurious F444W allocation survives every tested nuclear spectrum, stellar reference, and detector position.</li><li>The error is large enough to alter inferred sizes, luminosities, and masses of compact distant sources.</li></ul>
+            <ul><li>A point-only LRD yields wavelength-dependent residuals mistaken for a Sérsic host.</li><li>The spurious F444W host allocation exceeds the published 11.8% component in every test.</li><li>Inferred sizes, luminosities, and masses of LRDs are therefore systematically biased.</li></ul>
           </section>
         </aside>
         <section class="figure-panel" data-role="figure-panel" data-layout="hero-1">
           <figure class="figure-card" data-role="figure-card">
   <img src="assets/Figure1.png" alt="Figure 1">
-  <figcaption><strong>Figure 1 |</strong> Subtracting a stellar PSF from a point-only LRD leaves wavelength-dependent residuals that mimic a host galaxy.</figcaption>
+  <figcaption><strong>Figure 1 |</strong> Subtracting a stellar PSF from a point-only LRD leaves filter-dependent residuals that mimic a Sérsic host.</figcaption>
 </figure><figure class="figure-card" data-role="figure-card">
   <img src="assets/ExtendedDataFigure1.png" alt="Figure 2">
-  <figcaption><strong>Figure 2 |</strong> Every tested LRD spectrum, stellar reference, and detector position yields a spurious F444W host above the published value.</figcaption>
+  <figcaption><strong>Figure 2 |</strong> Every tested nuclear spectrum, stellar reference, and detector position produces a spurious F444W host above 11.8%.</figcaption>
 </figure>
         </section>
       </section>
