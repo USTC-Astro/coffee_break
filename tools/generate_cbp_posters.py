@@ -326,6 +326,7 @@ def edit_poster(
     paper_dir: Path,
     arxiv_id: str,
     paper_title: str,
+    paper_author: str,
     content: dict[str, Any],
     figures: list[dict[str, str]],
 ) -> None:
@@ -353,6 +354,28 @@ def edit_poster(
     doc = replace_once(doc, r'<h1 class="headline" data-role="headline">.*?</h1>', f'<h1 class="headline" data-role="headline">{esc(content.get("headline"))}</h1>', flags=re.DOTALL)
     doc = replace_once(doc, r'<p class="subtitle">.*?</p>', f'<p class="subtitle">{esc(content.get("subtitle"))}</p>', flags=re.DOTALL)
     doc = replace_once(doc, r"<strong>.*?</strong>", f"<strong>{esc(content.get('paper_meta') or f'arXiv {arxiv_id}')}</strong>", flags=re.DOTALL)
+    doc = replace_once(doc, r"(\.meta strong \{.*?\n    \})", r"""\1
+
+    .meta-author {
+      font-size: 17px;
+      line-height: 1.18;
+      margin: -2px 0 10px;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }""", flags=re.DOTALL)
+    author_html = f'<div class="meta-author">Authors: {esc(paper_author)}</div>' if paper_author else ""
+    if re.search(r'<div class="meta-author">.*?</div>', doc, flags=re.DOTALL):
+        doc = replace_once(doc, r'<div class="meta-author">.*?</div>', author_html, flags=re.DOTALL)
+    else:
+        doc, count = re.subn(
+            r'(</strong>\s*)<div class="meta-content">',
+            lambda match: f'{match.group(1)}{author_html}\n          <div class="meta-content">',
+            doc,
+            count=1,
+            flags=re.DOTALL,
+        )
+        if count != 1:
+            raise RuntimeError("Expected one meta-content block for author insertion.")
     doc = replace_once(doc, r'<section class="text-card text-card-background">\s*<h2>.*?</h2>\s*<p>.*?</p>\s*<div class="knowledge-gap">.*?</div>\s*</section>', f'''<section class="text-card text-card-background">
             <h2>Background</h2>
             <p>{esc(content.get("background"))}</p>
@@ -422,7 +445,7 @@ def generate_one(
 
     figure_count = min(2, max(1, len(figures)))
     run(CBP_CMD + ["scaffold", str(paper_dir), "--figure-count", str(figure_count), "--overwrite"])
-    edit_poster(paper_dir, arxiv_id, title, content, figures)
+    edit_poster(paper_dir, arxiv_id, title, paper.get("author", ""), content, figures)
     run(CBP_CMD + ["check", str(paper_dir / "poster.html"), "--json-out", str(paper_dir / "layout.json")])
     run(CBP_CMD + ["render", str(paper_dir / "poster.html"), "--png", "--pdf"])
     return publish_outputs(paper_dir, arxiv_id, rank, carousel_dir)
