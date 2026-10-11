@@ -1,16 +1,23 @@
 [
   {
-    "arxiv_id": "2608.28745",
+    "arxiv_id": "2609.30441",
     "votes": 2,
-    "title": "Super-Eddington Little Blue Dots May Reionize Helium Too Early",
-    "author": "Christopher Cain, Brent Smith, Gibson B. Bowling, Yongda Zhu, Lily Whitler, Rafael Ortiz, Anson D'Aloisio, Rogier Windhorst",
-    "vote_id": "746162"
+    "title": "A tidal disruption event in a quasar at redshift 7.19",
+    "author": "S. Fujimoto, Q. Fei, G. B. Brammer, K. Inayoshi, V. Kokorev, L. C. Ho, R. Li, F. Walter et al.",
+    "vote_id": "754977"
   },
   {
-    "arxiv_id": "2608.30459",
+    "arxiv_id": "2609.33198",
     "votes": 2,
-    "title": "Broad-band host measurements of little red dots and similar compact nuclei require source-conditioned polychromatic PSFs",
-    "author": "Sergio Bonaque-González",
-    "vote_id": "745134"
+    "title": "Probing Solar Chameleons with XENONnT Ionization-Only Data",
+    "author": "Guan-Wen Yuan",
+    "vote_id": "754971"
+  },
+  {
+    "arxiv_id": "2609.21374",
+    "votes": 2,
+    "title": "Fountain pattern of baryon cycle revealed in galaxy ecosystems",
+    "author": "Chengyu Ma, Yangyao Chen, Enci Wang, Houjun Mo, Huiyuan Wang, Tao Wang, Qirong Yuan, Min Du et al.",
+    "vote_id": "754961"
   }
 ]
