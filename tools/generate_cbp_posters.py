@@ -270,6 +270,7 @@ def apply_coffee_theme(doc: str) -> str:
         "--text-fr: 0.9fr;": "--text-fr: 1.15fr;",
         "--figure-fr: 1.85fr;": "--figure-fr: 1.55fr;",
         "--caption-size: 21px;": "--caption-size: 19px;",
+        "--header-h: 208px;": "--header-h: 216px;",
         "--result-text-size: 17px;": "--result-text-size: 22px;",
         "background: var(--paper);\n      color: var(--ink);": "background: var(--page-bg);\n      color: var(--ink);",
         "background:\n        linear-gradient(135deg, rgba(150, 146, 175, 0.12), transparent 38%),\n        radial-gradient(circle at 85% 6%, rgba(150, 146, 175, 0.08), transparent 22%),\n        linear-gradient(180deg, rgba(150, 146, 175, 0.14) 0%, rgba(150, 146, 175, 0.05) 58%, rgba(150, 146, 175, 0.12) 100%),\n        var(--paper);": "background: var(--paper);",
@@ -481,14 +482,18 @@ def main() -> None:
         raise SystemExit("Set DEEPSEEK_API_KEY or run with --dry-run.")
 
     manifest_items = []
+    failed_ids = []
     for rank, paper in enumerate(papers, start=1):
         try:
             item = generate_one(paper, args, api_key, rank, staging_carousel_dir)
         except Exception as exc:
             print(f"warning: failed to generate poster for {paper.get('arxiv_id', 'unknown')}: {exc}", file=sys.stderr)
+            failed_ids.append(paper.get("arxiv_id", "unknown"))
             continue
         if item:
             manifest_items.append(item)
+        else:
+            failed_ids.append(paper.get("arxiv_id", "unknown"))
 
     if update_carousel and manifest_items and len(manifest_items) == len(papers):
         if carousel_dir.exists():
@@ -508,6 +513,8 @@ def main() -> None:
                 file=sys.stderr,
             )
     print(f"Generated {len(manifest_items)} poster(s).")
+    if failed_ids:
+        raise SystemExit(f"Poster generation incomplete: {', '.join(failed_ids)}")
 
 
 if __name__ == "__main__":
