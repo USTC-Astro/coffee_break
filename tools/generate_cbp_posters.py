@@ -36,6 +36,40 @@ def run(cmd: list[str], cwd: Path = BASE_DIR) -> None:
     subprocess.run(cmd, cwd=cwd, check=True)
 
 
+def check_poster_layout(poster_path: Path, layout_path: Path) -> None:
+    command = CBP_CMD + ["check", str(poster_path), "--json-out", str(layout_path)]
+    compact_styles = [
+        """.title-block { gap: 8px; }
+        .headline { font-size: 54px; line-height: 0.98; }
+        .subtitle { font-size: 21px; line-height: 1.08; }
+        .meta strong { font-size: 23px; line-height: 1.05; margin-bottom: 6px; }
+        .meta-author { font-size: 15px; line-height: 1.08; margin: 0 0 6px; }""",
+        """.title-block { gap: 6px; }
+        .headline { font-size: 48px; line-height: 0.96; }
+        .subtitle { font-size: 18px; line-height: 1.05; }
+        .meta strong { font-size: 20px; line-height: 1.02; margin-bottom: 4px; }
+        .meta-author { font-size: 13px; line-height: 1.05; margin: 0 0 4px; }
+        .meta-links { font-size: 14px; }""",
+    ]
+    for attempt in range(len(compact_styles) + 1):
+        result = subprocess.run(command, cwd=BASE_DIR, capture_output=True, text=True)
+        if result.stdout:
+            print(result.stdout, end="")
+        if result.stderr:
+            print(result.stderr, end="", file=sys.stderr)
+        if result.returncode == 0:
+            return
+        output = result.stdout + result.stderr
+        if attempt == len(compact_styles) or "header" not in output or "exceeds" not in output:
+            raise subprocess.CalledProcessError(result.returncode, command)
+        doc = poster_path.read_text(encoding="utf-8")
+        if "</style>" not in doc:
+            raise RuntimeError("Poster stylesheet is missing.")
+        doc = doc.replace("</style>", f"\n{compact_styles[attempt]}\n</style>", 1)
+        poster_path.write_text(doc, encoding="utf-8")
+        print(f"retrying layout with compact header ({attempt + 1})")
+
+
 def call_deepseek(api_key: str, model: str, messages: list[dict[str, str]]) -> dict[str, Any]:
     payload = {
         "model": model,
@@ -447,7 +481,7 @@ def generate_one(
     figure_count = min(2, max(1, len(figures)))
     run(CBP_CMD + ["scaffold", str(paper_dir), "--figure-count", str(figure_count), "--overwrite"])
     edit_poster(paper_dir, arxiv_id, title, paper.get("author", ""), content, figures)
-    run(CBP_CMD + ["check", str(paper_dir / "poster.html"), "--json-out", str(paper_dir / "layout.json")])
+    check_poster_layout(paper_dir / "poster.html", paper_dir / "layout.json")
     run(CBP_CMD + ["render", str(paper_dir / "poster.html"), "--png", "--pdf"])
     return publish_outputs(paper_dir, arxiv_id, rank, carousel_dir)
 
