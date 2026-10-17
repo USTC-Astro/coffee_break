@@ -27,7 +27,9 @@ def load_papers(json_path: Path | None = None) -> list[dict]:
     if not json_file.exists():
         return []
     papers = json.loads(json_file.read_text(encoding="utf-8"))
-    manual_by_id = {item["arxiv_id"]: item for item in load_manual_posters()}
+    manual_by_id = {}
+    for item in load_manual_posters():
+        manual_by_id.setdefault(item["arxiv_id"], item)
     for paper in papers:
         paper["has_summary"] = (DATA_DIR / f"{paper['arxiv_id']}.md").exists()
         manual = manual_by_id.get(paper["arxiv_id"])

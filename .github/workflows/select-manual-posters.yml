@@ -1,0 +1,58 @@
+name: Set displayed posters
+
+on:
+  workflow_dispatch:
+    inputs:
+      filenames:
+        description: "要展示的图片文件名，用英文逗号分隔；留空则撤下所有手动海报"
+        required: false
+        type: string
+      include_generated:
+        description: "同时展示本周自动生成的海报"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: update-agenda
+  cancel-in-progress: false
+
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Select uploaded posters
+        env:
+          POSTER_FILENAMES: ${{ inputs.filenames }}
+          INCLUDE_GENERATED: ${{ inputs.include_generated }}
+        run: python tools/select_manual_posters.py --filenames "$POSTER_FILENAMES" --include-generated "$INCLUDE_GENERATED"
+
+      - name: Build site
+        run: |
+          python -m pip install -r requirements-static.txt
+          python build_static.py --output-dir site
+
+      - name: Commit poster selection
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Set displayed posters"
+          file_pattern: "data/posters/manual data/posters/current/manifest.json"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - uses: actions/deploy-pages@v4
