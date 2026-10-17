@@ -332,7 +332,7 @@ MathJax = {
     {% for p in papers %}
     <div class="paper-card {% if loop.index == 1 %}top1{% elif loop.index == 2 %}top2{% endif %}"
          {% if p.has_poster %}
-         data-poster-url="data/generated_posters/{{ p.arxiv_id }}/poster.html"
+         data-poster-url="{{ p.poster_url }}"
          {% endif %}
          onclick="openPaperCard(this, 'https://arxiv.org/abs/{{ p.arxiv_id }}')">
 

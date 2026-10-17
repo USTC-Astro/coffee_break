@@ -147,6 +147,12 @@
     display: block;
   }
 
+  .poster-image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
   /* ── Nav arrows ── */
   .arrow {
     position: absolute;
@@ -339,7 +345,7 @@ function showSlide(idx) {
       wrap.querySelector('.poster-loading')?.remove();
     }, {once: true});
   } else {
-    wrap.innerHTML = `<img class="slide-img" src="${versionedUrl(current.url)}" alt="${current.name || 'poster'}">`;
+    wrap.innerHTML = `<a class="poster-image-link" href="${versionedUrl(current.url)}" target="_blank" rel="noopener"><img class="slide-img" src="${versionedUrl(current.url)}" alt="${current.name || 'poster'}"></a>`;
   }
 
   // Counter
@@ -347,12 +353,8 @@ function showSlide(idx) {
     `${currentIdx + 1} / ${images.length}`;
   document.getElementById('poster-select').value = String(currentIdx);
   const openLink = document.getElementById('open-poster');
-  if (current.poster_url) {
-    openLink.href = versionedUrl(current.poster_url);
-    openLink.style.display = 'inline-block';
-  } else {
-    openLink.style.display = 'none';
-  }
+  openLink.href = versionedUrl(current.poster_url || current.url);
+  openLink.style.display = 'inline-block';
 
   // Arrows
   document.getElementById('arrow-left').disabled  = images.length <= 1;

@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from prepare_cbp_paper import DATA_DIR, clean_inline, extract_abstract, extract_title, prepare_paper, read_text
+from manual_posters import load_manual_posters, merge_manual_posters
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -535,7 +536,7 @@ def main() -> None:
         assert staging_carousel_dir is not None
         staging_carousel_dir.rename(carousel_dir)
         (carousel_dir / "manifest.json").write_text(
-            json.dumps({"images": manifest_items}, indent=2, ensure_ascii=False),
+            json.dumps({"images": merge_manual_posters(manifest_items, load_manual_posters())}, indent=2, ensure_ascii=False),
             encoding="utf-8",
         )
     else:

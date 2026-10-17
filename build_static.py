@@ -11,6 +11,7 @@ from datetime import datetime
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
+from tools.manual_posters import load_manual_posters
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -26,9 +27,13 @@ def load_papers(json_path: Path | None = None) -> list[dict]:
     if not json_file.exists():
         return []
     papers = json.loads(json_file.read_text(encoding="utf-8"))
+    manual_by_id = {item["arxiv_id"]: item for item in load_manual_posters()}
     for paper in papers:
         paper["has_summary"] = (DATA_DIR / f"{paper['arxiv_id']}.md").exists()
-        paper["has_poster"] = (DATA_DIR / "generated_posters" / paper["arxiv_id"] / "poster.html").exists()
+        manual = manual_by_id.get(paper["arxiv_id"])
+        generated_url = f"data/generated_posters/{paper['arxiv_id']}/poster.html"
+        paper["poster_url"] = manual["url"] if manual else generated_url
+        paper["has_poster"] = bool(manual) or (DATA_DIR / "generated_posters" / paper["arxiv_id"] / "poster.html").exists()
     return papers
 
 
@@ -185,6 +190,8 @@ def build_poster_manifests(data_root: Path) -> None:
         return
     for week_dir in sorted(p for p in posters_root.iterdir() if p.is_dir()):
         if not WEEK_RE.match(week_dir.name):
+            continue
+        if week_dir.name == "current" and (week_dir / "manifest.json").exists():
             continue
         files = sorted(
             [
