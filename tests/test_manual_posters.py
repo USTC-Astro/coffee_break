@@ -9,7 +9,7 @@ from tools.manual_posters import (
     load_manual_posters,
     merge_manual_posters,
     read_images,
-    register_png,
+    register_image,
     write_images,
 )
 
@@ -31,7 +31,7 @@ class ManualPosterTests(unittest.TestCase):
             ]
             write_images(current_manifest_path(data_dir), generated)
 
-            register_png("2609.30441", image_path.name, data_dir)
+            register_image("2609.30441", image_path.name, data_dir)
             manual = load_manual_posters(data_dir)
             current = read_images(current_manifest_path(data_dir))
             build_poster_manifests(data_dir)
@@ -40,7 +40,7 @@ class ManualPosterTests(unittest.TestCase):
             self.assertEqual([item["arxiv_id"] for item in current], ["2609.30441", "2609.33198"])
             self.assertEqual(current[0]["url"], "data/posters/manual/2609.30441.png")
 
-            register_png("2609.30441", image_path.name, data_dir)
+            register_image("2609.30441", image_path.name, data_dir)
             self.assertEqual(read_images(current_manifest_path(data_dir)), current)
             self.assertEqual(len(load_manual_posters(data_dir)), 1)
 
@@ -51,15 +51,31 @@ class ManualPosterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             data_dir = Path(temp)
             with self.assertRaises(FileNotFoundError):
-                register_png("2609.30441", "missing.png", data_dir)
+                register_image("2609.30441", "missing.png", data_dir)
             with self.assertRaises(ValueError):
-                register_png("2609.30441", "../poster.png", data_dir)
+                register_image("2609.30441", "../poster.png", data_dir)
             image_path = data_dir / "posters" / "manual" / "fake.png"
             image_path.parent.mkdir(parents=True)
             image_path.write_text("not a png")
             with self.assertRaises(ValueError):
-                register_png("2609.30441", image_path.name, data_dir)
+                register_image("2609.30441", image_path.name, data_dir)
             self.assertFalse((image_path.parent / "manifest.json").exists())
+
+    def test_png_with_jpg_extension_gets_correct_url(self):
+        with tempfile.TemporaryDirectory() as temp:
+            data_dir = Path(temp)
+            manual_dir = data_dir / "posters" / "manual"
+            manual_dir.mkdir(parents=True)
+            uploaded = manual_dir / "2610.17559.jpg"
+            uploaded.write_bytes(
+                b"\x89PNG\r\n\x1a\n" + struct.pack(">I", 13) + b"IHDR"
+                + struct.pack(">II", 1920, 1080) + b"\x08\x02\x00\x00\x00"
+            )
+
+            register_image("2610.17559", uploaded.name, data_dir)
+
+            self.assertEqual((manual_dir / "2610.17559.png").read_bytes(), uploaded.read_bytes())
+            self.assertEqual(load_manual_posters(data_dir)[0]["url"], "data/posters/manual/2610.17559.png")
 
 
 if __name__ == "__main__":

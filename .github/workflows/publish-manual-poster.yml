@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       filename:
-        description: "已上传到 data/posters/manual/ 的 PNG 文件名"
+        description: "已上传到 data/posters/manual/ 的 PNG 或 JPG 文件名"
         required: true
         type: string
 
@@ -31,7 +31,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Register uploaded PNG
+      - name: Register uploaded image
         env:
           POSTER_ARXIV_ID: ${{ inputs.arxiv_id }}
           POSTER_FILENAME: ${{ inputs.filename }}
@@ -46,7 +46,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Publish uploaded poster"
-          file_pattern: "data/posters/manual/manifest.json data/posters/current/manifest.json"
+          file_pattern: "data/posters/manual data/posters/current/manifest.json"
 
       - uses: actions/configure-pages@v5
 
