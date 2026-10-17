@@ -1,6 +1,11 @@
 {
   "images": [
     {
+      "name": "2610.17559.png",
+      "url": "data/posters/manual/2610.17559.png",
+      "arxiv_id": "2610.17559"
+    },
+    {
       "name": "01_2609.21374.png",
       "url": "data/posters/current/01_2609.21374.png",
       "arxiv_id": "2609.21374",
