@@ -1,33 +1,28 @@
 {
   "images": [
     {
-      "name": "2610.17559.png",
-      "url": "data/posters/manual/2610.17559.png",
-      "arxiv_id": "2610.17559"
-    },
-    {
       "name": "01_2610.30959.png",
       "url": "data/posters/current/01_2610.30959.png",
-      "poster_url": "data/generated_posters/2610.30959/poster.html",
-      "arxiv_id": "2610.30959"
+      "arxiv_id": "2610.30959",
+      "poster_url": "data/generated_posters/2610.30959/poster.html"
     },
     {
       "name": "02_2608.27878.png",
       "url": "data/posters/current/02_2608.27878.png",
-      "poster_url": "data/generated_posters/2608.27878/poster.html",
-      "arxiv_id": "2608.27878"
+      "arxiv_id": "2608.27878",
+      "poster_url": "data/generated_posters/2608.27878/poster.html"
     },
     {
       "name": "03_2610.20505.png",
       "url": "data/posters/current/03_2610.20505.png",
-      "poster_url": "data/generated_posters/2610.20505/poster.html",
-      "arxiv_id": "2610.20505"
+      "arxiv_id": "2610.20505",
+      "poster_url": "data/generated_posters/2610.20505/poster.html"
     },
     {
       "name": "04_2609.21374.png",
       "url": "data/posters/current/04_2609.21374.png",
-      "poster_url": "data/generated_posters/2609.21374/poster.html",
-      "arxiv_id": "2609.21374"
+      "arxiv_id": "2609.21374",
+      "poster_url": "data/generated_posters/2609.21374/poster.html"
     }
   ]
 }
