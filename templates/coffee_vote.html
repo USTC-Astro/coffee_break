@@ -307,7 +307,7 @@
       <div class="name-row">
         <input type="text" id="voter-name" placeholder="备注（可选，默认 anomaly）" maxlength="20"/>
       </div>
-      <div class="drinks-grid" id="drinks-grid"></div>
+      <div class="drinks-grid" id="drinks-grid">饮品加载中...</div>
       <div style="display:flex;gap:0.5rem;margin-top:1rem;">
         <button class="submit-btn" id="submit-btn" onclick="submitVote()" style="margin-top:0;flex:1;">提交点单</button>
         <button class="cancel-btn" id="cancel-btn" onclick="cancelVote()" style="display:none;">取消点单</button>
@@ -327,15 +327,7 @@
 </main>
 
 <script>
-const DRINKS = [
-  "小黄油美式", "生椰拿铁", "橙C美式", "小黄油拿铁",
-  "生椰杨枝甘露", "加浓美式", "小苹果茉莉冰奶", "柚C美式",
-  "苹果C美式", "冰吸生椰拿铁", "标准美式",
-  "茉莉花香拿铁", "羽衣轻体果蔬茶", "鲜萃轻轻茉莉", "精萃澳瑞白",
-  "紫葡萄茉莉冰奶", "乳酸菌美式", "经典泰奶",
-  "其他（填备注中）"
-];
-const TOP_DRINKS = []; // 不标记推荐
+let DRINKS = [];
 const SUPABASE_URL = 'https://nhogiteotdxwzfuwhpll.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_YsX1wgA9YBM-9HkDKgNMHw_2GUAZyxF';
 
@@ -411,6 +403,29 @@ function getDeviceId() {
 let selectedDrink = null;
 let votesLoading = false;
 let votePollTimer = null;
+let drinksLoading = false;
+
+async function loadDrinks() {
+  if (drinksLoading) return;
+  drinksLoading = true;
+  try {
+    const drinks = await supabaseRpc('coffee_vote_drinks', {}, 8000);
+    if (!Array.isArray(drinks) || !drinks.length || !drinks.every((item) => typeof item === 'string')) {
+      throw new Error('Invalid drink menu');
+    }
+    if (JSON.stringify(drinks) !== JSON.stringify(DRINKS)) {
+      DRINKS = drinks;
+      if (!DRINKS.includes(selectedDrink)) selectedDrink = null;
+      renderDrinks(selectedDrink);
+    }
+  } catch {
+    if (!DRINKS.length) {
+      document.getElementById('drinks-grid').textContent = '饮品暂时加载失败，请稍后重试';
+    }
+  } finally {
+    drinksLoading = false;
+  }
+}
 
 function renderDrinks(myVote) {
   const grid = document.getElementById('drinks-grid');
@@ -423,7 +438,7 @@ function renderDrinks(myVote) {
     btn.addEventListener('click', () => selectDrink(drink, btn));
     grid.appendChild(btn);
   });
-  if (myVote) selectedDrink = myVote;
+  if (myVote && DRINKS.includes(myVote)) selectedDrink = myVote;
 }
 
 function selectDrink(name, btn) {
@@ -442,9 +457,9 @@ function applyMyVoteState(votes, options = {}) {
     note.innerHTML = `你本周已投：<strong>${myVote}</strong>（可重新选择后提交更改）`;
     cancelBtn.style.display = 'block';
     if (options.updateDrinkSelection) {
-      selectedDrink = myVote;
+      selectedDrink = DRINKS.includes(myVote) ? myVote : null;
       document.querySelectorAll('.drink-btn').forEach((btn) => {
-        btn.classList.toggle('selected', btn.textContent === myVote);
+        btn.classList.toggle('selected', btn.textContent === selectedDrink);
       });
     }
   } else if (options.updateDrinkSelection) {
@@ -531,7 +546,7 @@ async function loadVotes(options = {}) {
     const votes = normalizeVotePayload(data);
     if (options.initial) {
       const myVote = votes[getDeviceId()]?.drink || null;
-      renderDrinks(myVote);
+      if (DRINKS.length && DRINKS.includes(myVote)) renderDrinks(myVote);
     }
     renderResults(votes);
     applyMyVoteState(votes, {updateDrinkSelection: options.initial});
@@ -553,8 +568,14 @@ function startVotePolling() {
   }, 2000);
 }
 
+function startMenuPolling() {
+  setInterval(() => {
+    if (!document.hidden) loadDrinks();
+  }, 30000);
+}
+
 async function submitVote() {
-  if (!selectedDrink) { alert('请先选择一种饮品'); return; }
+  if (!selectedDrink || !DRINKS.includes(selectedDrink)) { alert('请先选择一种在售饮品'); return; }
   const name = document.getElementById('voter-name').value.trim() || 'anomaly';
   localStorage.setItem('rating_author', name);
   const btn = document.getElementById('submit-btn');
@@ -587,12 +608,16 @@ const savedName = localStorage.getItem('rating_author');
 if (savedName) document.getElementById('voter-name').value = savedName;
 
 document.addEventListener('DOMContentLoaded', () => {
-  renderDrinks(null);
+  loadDrinks();
   loadVotes({initial: true});
   startVotePolling();
+  startMenuPolling();
 });
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) loadVotes();
+  if (!document.hidden) {
+    loadDrinks();
+    loadVotes();
+  }
 });
 </script>
 </body>
