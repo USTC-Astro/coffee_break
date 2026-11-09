@@ -124,12 +124,12 @@
           "x": 849.219,
           "y": 282,
           "w": 580.719,
-          "h": 676.203,
-          "bottom": 958.203,
+          "h": 697.469,
+          "bottom": 979.469,
           "right": 1429.938,
-          "naturalW": 1728,
+          "naturalW": 1296,
           "naturalH": 1296,
-          "src": "assets/fig2.png"
+          "src": "assets/fig3.png"
         }
       },
       {
@@ -278,17 +278,17 @@
       },
       {
         "x": 849.219,
-        "y": 966.203,
+        "y": 987.469,
         "w": 580.719,
-        "h": 65.797,
+        "h": 44.531,
         "bottom": 1032,
         "right": 1429.938,
         "label": "figure caption 1",
         "selector": "[data-role=\"figure-card\"] figcaption:nth-of-type(1)",
         "scrollW": 581,
         "clientW": 581,
-        "scrollH": 66,
-        "clientH": 66,
+        "scrollH": 45,
+        "clientH": 45,
         "overflowX": 0,
         "overflowY": 0,
         "cssOverflowX": "hidden",
